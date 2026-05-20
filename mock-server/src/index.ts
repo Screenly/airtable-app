@@ -111,14 +111,14 @@ app.post('/start', (_req, res) => {
 })
 
 app.get('/oauth/callback', async (req, res) => {
-  const { code, state, error } = req.query as Record<string, string>
+  const { code, state, error } = req.query
 
   if (error) {
     res.render('error', { message: `Authorization failed: ${error}` })
     return
   }
 
-  if (!code || !state) {
+  if (typeof code !== 'string' || typeof state !== 'string') {
     res.render('error', { message: 'Missing code or state in callback.' })
     return
   }
@@ -131,14 +131,13 @@ app.get('/oauth/callback', async (req, res) => {
     return
   }
 
-  clearOAuthState()
-
   const data = await exchangeCodeForTokens(code, stored.code_verifier)
   if (!data) {
     res.render('error', { message: 'Token exchange failed. Check server logs.' })
     return
   }
 
+  clearOAuthState()
   saveTokens({
     access_token: data.access_token,
     refresh_token: data.refresh_token,
