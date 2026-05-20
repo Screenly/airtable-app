@@ -9,7 +9,13 @@ import {
   signalReady,
 } from '@screenly/edge-apps'
 import { fetchTableSchema, fetchRecords, AuthError } from './api'
-import { showError, showScreen, renderTable, recordsToRows, findView } from './app'
+import {
+  showError,
+  showScreen,
+  renderTable,
+  recordsToRows,
+  findView,
+} from './app'
 
 type RefreshToken = () => Promise<void>
 type RuntimeState = {
@@ -26,7 +32,7 @@ async function loadAndRender(
   accessToken: string,
   baseId: string,
   tableId: string,
-  viewType: string
+  viewType: string,
 ): Promise<void> {
   const table = await fetchTableSchema(accessToken, baseId, tableId)
 
@@ -50,7 +56,7 @@ async function fetchAndRender(
   viewType: string,
   getRuntimeState: () => RuntimeState,
   refreshToken: RefreshToken,
-  displayErrors: boolean
+  displayErrors: boolean,
 ): Promise<void> {
   let { accessToken } = getRuntimeState()
   const { credentialError } = getRuntimeState()
@@ -58,7 +64,7 @@ async function fetchAndRender(
   if (!accessToken) {
     handleError(
       credentialError?.message ?? 'No access token available.',
-      displayErrors
+      displayErrors,
     )
     return
   }
@@ -70,7 +76,7 @@ async function fetchAndRender(
     if (!(err instanceof AuthError)) {
       handleError(
         err instanceof Error ? err.message : 'Failed to load data.',
-        displayErrors
+        displayErrors,
       )
       return
     }
@@ -91,7 +97,7 @@ async function fetchAndRender(
       retryErr instanceof Error
         ? retryErr.message
         : 'Session expired. Please re-authenticate.',
-      displayErrors
+      displayErrors,
     )
   }
 }
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       viewType,
       getRuntimeState,
       refreshToken,
-      displayErrors
+      displayErrors,
     )
 
   await run()

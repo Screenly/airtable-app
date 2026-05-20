@@ -8,6 +8,16 @@ categories:
   - Dashboard
 ready_signal: true
 settings:
+  # TODO: Change type to oauth:airtable:base once Screenly supports Airtable OAuth types.
+  base_id:
+    type: string
+    title: Base
+    optional: false
+    help_text:
+      schema_version: 1
+      properties:
+        help_text: The ID of the Airtable base to display data from (e.g. appXXXXXXXXXXXXXX).
+        type: text
   display_errors:
     type: string
     default_value: 'false'
@@ -33,3 +43,49 @@ settings:
     optional: true
     help_text: |
       Override the default timezone with a supported timezone identifier (e.g., Europe/London, America/New_York). Defaults to the system timezone if left blank.
+  refresh_interval:
+    type: string
+    default_value: '30'
+    title: Refresh Interval (seconds)
+    optional: true
+    help_text:
+      schema_version: 1
+      properties:
+        advanced: true
+        help_text: How often to refresh Airtable data. Defaults to 30 seconds.
+        type: number
+  # TODO: Change type to oauth:airtable:table once Screenly supports Airtable OAuth types.
+  table_id:
+    type: string
+    title: Table
+    optional: false
+    help_text:
+      schema_version: 1
+      properties:
+        help_text: The ID of the table within the base to display (e.g. tblXXXXXXXXXXXXXX).
+        type: text
+  view_type:
+    type: string
+    default_value: grid
+    title: View Type
+    optional: true
+    help_text:
+      schema_version: 1
+      properties:
+        help_text: The type of Airtable view to use when fetching records.
+        type: select
+        options:
+          - label: Grid
+            value: grid
+          - label: Calendar
+            value: calendar
+          - label: Gallery
+            value: gallery
+          - label: Gantt
+            value: block
+          - label: Kanban
+            value: kanban
+          - label: Timeline
+            value: timeline
+          - label: Form
+            value: form

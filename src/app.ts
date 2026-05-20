@@ -43,9 +43,10 @@ export function renderTable(headers: string[], rows: string[][]): void {
   })
 }
 
-export function recordsToRows(
-  records: AirtableRecord[]
-): { headers: string[]; rows: string[][] } {
+export function recordsToRows(records: AirtableRecord[]): {
+  headers: string[]
+  rows: string[][]
+} {
   if (records.length === 0) return { headers: [], rows: [] }
 
   const headers = Object.keys(records[0].fields)
@@ -55,7 +56,7 @@ export function recordsToRows(
       if (val === null || val === undefined) return ''
       if (Array.isArray(val)) return val.join(', ')
       return String(val)
-    })
+    }),
   )
 
   return { headers, rows }
@@ -63,7 +64,7 @@ export function recordsToRows(
 
 export function findView(
   views: AirtableView[],
-  viewType: string
+  viewType: string,
 ): AirtableView | undefined {
   return views.find((v) => v.type === viewType)
 }
