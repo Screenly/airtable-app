@@ -49,7 +49,16 @@ export function recordsToRows(records: AirtableRecord[]): {
 } {
   if (records.length === 0) return { headers: [], rows: [] }
 
-  const headers = Object.keys(records[0].fields)
+  const seenHeaders = new Set<string>()
+  const headers: string[] = []
+  records.forEach((record) => {
+    Object.keys(record.fields).forEach((field) => {
+      if (!seenHeaders.has(field)) {
+        seenHeaders.add(field)
+        headers.push(field)
+      }
+    })
+  })
   const rows = records.map((r) =>
     headers.map((h) => {
       const val = r.fields[h]
