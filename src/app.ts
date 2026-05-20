@@ -1,17 +1,20 @@
-import { setupTheme, signalReady } from '@screenly/edge-apps'
+import type { AirtableRecord, AirtableView } from './api'
 
-const TABLE_TITLE = 'Team Directory'
+export function showScreen(screenId: string): void {
+  const screens = ['table-wrapper', 'error-screen']
+  screens.forEach((id) => {
+    const el = document.getElementById(id)
+    if (el) el.style.display = id === screenId ? 'flex' : 'none'
+  })
+}
 
-const TABLE_DATA = [
-  ['Name', 'Department', 'Location', 'Role'],
-  ['Alice Johnson', 'Engineering', 'New York', 'Senior Engineer'],
-  ['Bob Smith', 'Marketing', 'Los Angeles', 'Marketing Manager'],
-  ['Carol White', 'Design', 'Chicago', 'Lead Designer'],
-  ['David Lee', 'Engineering', 'San Francisco', 'Software Engineer'],
-  ['Eva Brown', 'Product', 'Seattle', 'Product Manager'],
-]
+export function showError(message: string): void {
+  showScreen('error-screen')
+  const el = document.getElementById('error-message')
+  if (el) el.textContent = message
+}
 
-export function renderTable(rows: string[][]): void {
+export function renderTable(headers: string[], rows: string[][]): void {
   const thead = document.getElementById('table-head')
   const tbody = document.getElementById('table-body')
   if (!thead || !tbody) return
@@ -19,9 +22,7 @@ export function renderTable(rows: string[][]): void {
   thead.innerHTML = ''
   tbody.innerHTML = ''
 
-  if (rows.length === 0) return
-
-  const [headers, ...dataRows] = rows
+  if (headers.length === 0) return
 
   const headerRow = document.createElement('tr')
   headers.forEach((header) => {
@@ -31,7 +32,7 @@ export function renderTable(rows: string[][]): void {
   })
   thead.appendChild(headerRow)
 
-  dataRows.forEach((row) => {
+  rows.forEach((row) => {
     const tr = document.createElement('tr')
     row.forEach((cell) => {
       const td = document.createElement('td')
@@ -42,16 +43,27 @@ export function renderTable(rows: string[][]): void {
   })
 }
 
-export default function init(): void {
-  setupTheme()
+export function recordsToRows(
+  records: AirtableRecord[]
+): { headers: string[]; rows: string[][] } {
+  if (records.length === 0) return { headers: [], rows: [] }
 
-  const titleEl = document.getElementById('table-title')
-  if (titleEl) {
-    titleEl.textContent = TABLE_TITLE
-    titleEl.hidden = false
-  }
+  const headers = Object.keys(records[0].fields)
+  const rows = records.map((r) =>
+    headers.map((h) => {
+      const val = r.fields[h]
+      if (val === null || val === undefined) return ''
+      if (Array.isArray(val)) return val.join(', ')
+      return String(val)
+    })
+  )
 
-  renderTable(TABLE_DATA)
+  return { headers, rows }
+}
 
-  signalReady()
+export function findView(
+  views: AirtableView[],
+  viewType: string
+): AirtableView | undefined {
+  return views.find((v) => v.type === viewType)
 }
