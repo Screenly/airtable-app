@@ -37,12 +37,12 @@ async function loadAndRender(
   const table = await fetchTableSchema(accessToken, baseId, tableId)
 
   const titleEl = document.getElementById('table-title')
-  if (titleEl && table) {
+  if (titleEl) {
     titleEl.textContent = table.name
     titleEl.hidden = false
   }
 
-  const view = table ? findView(table.views, viewType) : undefined
+  const view = findView(table.views, viewType)
   const records = await fetchRecords(accessToken, baseId, tableId, view?.id)
   const { headers, rows } = recordsToRows(records)
 

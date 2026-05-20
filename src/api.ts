@@ -29,16 +29,22 @@ export async function fetchTableSchema(
   token: string,
   baseId: string,
   tableId: string,
-): Promise<AirtableTable | null> {
+): Promise<AirtableTable> {
   const res = await fetch(`${AIRTABLE_API_BASE}/meta/bases/${baseId}/tables`, {
     headers: { Authorization: `Bearer ${token}` },
   })
 
   if (res.status === 401 || res.status === 403) throw new AuthError()
-  if (!res.ok) return null
+  if (!res.ok)
+    throw new Error(
+      `Failed to fetch table schema: ${res.status} ${res.statusText}`,
+    )
 
   const data = (await res.json()) as { tables: AirtableTable[] }
-  return data.tables.find((t) => t.id === tableId) ?? null
+  const table = data.tables.find((t) => t.id === tableId)
+  if (!table)
+    throw new Error(`Table '${tableId}' not found in base '${baseId}'`)
+  return table
 }
 
 export async function fetchRecords(
@@ -56,7 +62,8 @@ export async function fetchRecords(
   )
 
   if (res.status === 401 || res.status === 403) throw new AuthError()
-  if (!res.ok) return []
+  if (!res.ok)
+    throw new Error(`Failed to fetch records: ${res.status} ${res.statusText}`)
 
   const data = (await res.json()) as { records: AirtableRecord[] }
   return data.records
