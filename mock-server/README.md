@@ -14,7 +14,7 @@ A local OAuth helper for the Airtable Edge App. It handles the Airtable OAuth 2.
 3. Under **OAuth redirect URL**, add `http://localhost:3000/oauth/callback`
 4. Under **Scopes**, enable `data.records:read` and `schema.bases:read`
 5. Copy the **Client ID** — this is your `AIRTABLE_CLIENT_ID`
-6. Optionally copy the **Client Secret** if your integration has one — this is your `AIRTABLE_CLIENT_SECRET`
+6. Click **Generate client secret** and copy the value as `AIRTABLE_CLIENT_SECRET`. The mock server exchanges and refreshes tokens from a server process, so using a client secret is recommended as a security best practice. Without it, only the PKCE verifier protects the exchange, which is fine for quick local testing.
 
 ## Getting Started
 
@@ -48,13 +48,13 @@ Open `http://localhost:3000` in a browser and click **Connect to Airtable**.
 
 ## Endpoints
 
-| Endpoint              | Description                                              |
-| --------------------- | -------------------------------------------------------- |
-| `GET /`               | UI showing auth status, tokens, and controls             |
-| `POST /start`         | Generates PKCE params and redirects to Airtable OAuth    |
-| `GET /oauth/callback` | Exchanges the authorization code for tokens              |
+| Endpoint              | Description                                               |
+| --------------------- | --------------------------------------------------------- |
+| `GET /`               | UI showing auth status, tokens, and controls              |
+| `POST /start`         | Generates PKCE params and redirects to Airtable OAuth     |
+| `GET /oauth/callback` | Exchanges the authorization code for tokens               |
 | `GET /access_token/`  | Returns `{ token, metadata: { scope } }` for the Edge App |
-| `POST /clear`         | Clears stored tokens                                     |
+| `POST /clear`         | Clears stored tokens                                      |
 
 ## Connecting to the Edge App
 

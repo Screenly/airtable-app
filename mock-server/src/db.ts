@@ -38,9 +38,10 @@ export function saveTokens(tokens: StoredTokens): void {
 export function loadTokens(): StoredTokens | null {
   return (
     db
-      .query<StoredTokens, []>(
-        'SELECT access_token, refresh_token, scope FROM tokens LIMIT 1'
-      )
+      .query<
+        StoredTokens,
+        []
+      >('SELECT access_token, refresh_token, scope FROM tokens LIMIT 1')
       .get() ?? null
   )
 }
@@ -57,14 +58,13 @@ export function saveOAuthState(state: string, codeVerifier: string): void {
   ])
 }
 
-export function getOAuthState(
-  state: string
-): { code_verifier: string } | null {
+export function getOAuthState(state: string): { code_verifier: string } | null {
   return (
     db
-      .query<{ code_verifier: string }, [string]>(
-        'SELECT code_verifier FROM oauth_state WHERE state = ?'
-      )
+      .query<
+        { code_verifier: string },
+        [string]
+      >('SELECT code_verifier FROM oauth_state WHERE state = ?')
       .get(state) ?? null
   )
 }

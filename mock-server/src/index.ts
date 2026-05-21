@@ -16,7 +16,11 @@ import {
   getOAuthState,
   clearOAuthState,
 } from './db'
-import { generateCodeVerifier, generateCodeChallenge, generateState } from './pkce'
+import {
+  generateCodeVerifier,
+  generateCodeChallenge,
+  generateState,
+} from './pkce'
 import { startRefreshLoop } from './refresh'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -35,15 +39,11 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, '..', 'public')))
 app.use(
   '/vendor/htmx',
-  express.static(
-    path.join(__dirname, '..', 'node_modules', 'htmx.org', 'dist')
-  )
+  express.static(path.join(__dirname, '..', 'node_modules', 'htmx.org', 'dist'))
 )
 app.use(
   '/vendor/alpine',
-  express.static(
-    path.join(__dirname, '..', 'node_modules', 'alpinejs', 'dist')
-  )
+  express.static(path.join(__dirname, '..', 'node_modules', 'alpinejs', 'dist'))
 )
 
 interface TokenData {
@@ -133,7 +133,9 @@ app.get('/oauth/callback', async (req, res) => {
 
   const data = await exchangeCodeForTokens(code, stored.code_verifier)
   if (!data) {
-    res.render('error', { message: 'Token exchange failed. Check server logs.' })
+    res.render('error', {
+      message: 'Token exchange failed. Check server logs.',
+    })
     return
   }
 
