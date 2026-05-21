@@ -91,6 +91,10 @@ screenly edge-app instance create
 | `override_timezone` | string | No       | Override the timezone for date formatting (e.g. `America/New_York`). Defaults to GPS-based detection.    |
 | `display_errors`    | string | No       | Display errors on screen for debugging (`true`/`false`). Default: `false`                                |
 
+## Limitations
+
+- A maximum of 100 records are fetched per refresh. Tables with more than 100 records will be truncated.
+
 ## Authentication
 
 This app uses the Screenly OAuth service to obtain an Airtable access token at runtime. For local development, the `mock-server` acts as a stand-in for that service.

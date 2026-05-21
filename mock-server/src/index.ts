@@ -33,7 +33,7 @@ if (!CLIENT_ID) {
 }
 
 const app = express()
-app.use(cors())
+app.use(cors({ origin: /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/ }))
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, '..', 'public')))
