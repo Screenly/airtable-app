@@ -161,6 +161,7 @@ auto-scaler {
 
 #error-screen {
   width: 100%;
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
