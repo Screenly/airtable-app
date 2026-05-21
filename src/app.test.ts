@@ -93,7 +93,7 @@ describe('DOM functions', () => {
   })
 })
 
-describe('recordsToRows', () => {
+describe('recordsToRows (basic)', () => {
   test('returns empty headers and rows for empty input', () => {
     expect(recordsToRows([])).toEqual({ headers: [], rows: [] })
   })
@@ -122,15 +122,6 @@ describe('recordsToRows', () => {
     expect(rows[0][0]).toBe('a, b, c')
   })
 
-  test('uses fieldNames order when provided', () => {
-    const records = [
-      { id: 'rec1', createdTime: '', fields: { B: 2, A: 1, C: 3 } },
-    ]
-    const { headers, rows } = recordsToRows(records, ['A', 'B', 'C'])
-    expect(headers).toEqual(['A', 'B', 'C'])
-    expect(rows[0]).toEqual(['1', '2', '3'])
-  })
-
   test('renders null and undefined fields as empty string', () => {
     const records = [
       {
@@ -141,6 +132,64 @@ describe('recordsToRows', () => {
     ]
     const { rows } = recordsToRows(records)
     expect(rows[0]).toEqual(['', ''])
+  })
+})
+
+describe('recordsToRows (with schema fields)', () => {
+  test('uses schema field order when provided', () => {
+    const records = [
+      { id: 'rec1', createdTime: '', fields: { B: 2, A: 1, C: 3 } },
+    ]
+    const fields = [
+      { id: 'f1', name: 'A', type: 'number' },
+      { id: 'f2', name: 'B', type: 'number' },
+      { id: 'f3', name: 'C', type: 'number' },
+    ]
+    const { headers, rows } = recordsToRows(records, fields)
+    expect(headers).toEqual(['A', 'B', 'C'])
+    expect(rows[0]).toEqual(['1', '2', '3'])
+  })
+
+  test('returns Pill[] for singleSelect fields', () => {
+    const records = [
+      { id: 'rec1', createdTime: '', fields: { Status: 'Open' } },
+    ]
+    const fields = [
+      {
+        id: 'f1',
+        name: 'Status',
+        type: 'singleSelect',
+        options: {
+          choices: [{ id: 's1', name: 'Open', color: 'blueLight2' }],
+        },
+      },
+    ]
+    const { rows } = recordsToRows(records, fields)
+    expect(rows[0][0]).toEqual([{ label: 'Open', color: 'blueLight2' }])
+  })
+
+  test('returns Pill[] for multipleSelects fields', () => {
+    const records = [
+      { id: 'rec1', createdTime: '', fields: { Tags: ['login', 'urgent'] } },
+    ]
+    const fields = [
+      {
+        id: 'f1',
+        name: 'Tags',
+        type: 'multipleSelects',
+        options: {
+          choices: [
+            { id: 's1', name: 'login', color: 'blueLight2' },
+            { id: 's2', name: 'urgent', color: 'cyanLight2' },
+          ],
+        },
+      },
+    ]
+    const { rows } = recordsToRows(records, fields)
+    expect(rows[0][0]).toEqual([
+      { label: 'login', color: 'blueLight2' },
+      { label: 'urgent', color: 'cyanLight2' },
+    ])
   })
 })
 

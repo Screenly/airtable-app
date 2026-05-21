@@ -13,10 +13,19 @@ export interface AirtableView {
   type: string
 }
 
+export interface AirtableChoice {
+  id: string
+  name: string
+  color?: string
+}
+
 export interface AirtableField {
   id: string
   name: string
   type: string
+  options?: {
+    choices?: AirtableChoice[]
+  }
 }
 
 export interface AirtableTable {

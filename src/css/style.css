@@ -56,17 +56,20 @@ auto-scaler {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 2rem 3rem;
   min-height: 0;
+  overflow: hidden;
 }
 
 #table-wrapper {
   width: 100%;
   max-width: 100rem;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  min-height: 0;
 }
 
 #table-title {
@@ -76,6 +79,7 @@ auto-scaler {
   margin: 0;
   letter-spacing: -0.03em;
   text-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
 }
 
 .table-card {
@@ -120,6 +124,24 @@ auto-scaler {
   font-size: 1.125rem;
   font-weight: 400;
   color: var(--color-text-secondary);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.cell-pills {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -214,7 +236,7 @@ auto-scaler {
 @media (orientation: portrait) {
   .content {
     padding: 1.5rem 2rem;
-    align-items: center;
+    align-items: flex-start;
   }
 
   #table-wrapper {

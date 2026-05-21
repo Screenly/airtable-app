@@ -15,6 +15,7 @@ import {
   renderTable,
   recordsToRows,
   findView,
+  trimRowsToFit,
 } from './app'
 
 type RefreshToken = () => Promise<void>
@@ -44,13 +45,11 @@ async function loadAndRender(
 
   const view = findView(table.views, viewType)
   const records = await fetchRecords(accessToken, baseId, tableId, view?.id)
-  const { headers, rows } = recordsToRows(
-    records,
-    table.fields.map((f) => f.name),
-  )
+  const { headers, rows } = recordsToRows(records, table.fields)
 
   renderTable(headers, rows)
   showScreen('table-wrapper')
+  trimRowsToFit()
 }
 
 async function fetchAndRender(
