@@ -14,7 +14,6 @@ import {
   showScreen,
   renderTable,
   recordsToRows,
-  findView,
   trimRowsToFit,
 } from './app'
 
@@ -33,7 +32,6 @@ async function loadAndRender(
   accessToken: string,
   baseId: string,
   tableId: string,
-  viewType: string,
 ): Promise<void> {
   const table = await fetchTableSchema(accessToken, baseId, tableId)
 
@@ -43,8 +41,7 @@ async function loadAndRender(
     titleEl.hidden = false
   }
 
-  const view = findView(table.views, viewType)
-  const records = await fetchRecords(accessToken, baseId, tableId, view?.id)
+  const records = await fetchRecords(accessToken, baseId, tableId)
   const { headers, rows } = recordsToRows(records, table.fields)
 
   renderTable(headers, rows)
@@ -55,7 +52,6 @@ async function loadAndRender(
 async function fetchAndRender(
   baseId: string,
   tableId: string,
-  viewType: string,
   getRuntimeState: () => RuntimeState,
   refreshToken: RefreshToken,
   displayErrors: boolean,
@@ -72,7 +68,7 @@ async function fetchAndRender(
   }
 
   try {
-    await loadAndRender(accessToken, baseId, tableId, viewType)
+    await loadAndRender(accessToken, baseId, tableId)
     return
   } catch (err) {
     if (!(err instanceof AuthError)) {
@@ -93,7 +89,7 @@ async function fetchAndRender(
       return
     }
 
-    await loadAndRender(accessToken, baseId, tableId, viewType)
+    await loadAndRender(accessToken, baseId, tableId)
   } catch (retryErr) {
     handleError(
       retryErr instanceof Error
@@ -110,7 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const baseId = getSettingWithDefault<string>('base_id', '')
   const tableId = getSettingWithDefault<string>('table_id', '')
-  const viewType = getSettingWithDefault<string>('view_type', 'grid')
   const refreshInterval = getSettingWithDefault<number>('refresh_interval', 30)
   const displayErrors =
     getSettingWithDefault<string>('display_errors', 'false') === 'true'
@@ -151,7 +146,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchAndRender(
       baseId,
       tableId,
-      viewType,
       getRuntimeState,
       refreshToken,
       displayErrors,

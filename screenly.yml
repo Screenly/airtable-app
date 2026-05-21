@@ -64,28 +64,3 @@ settings:
       properties:
         help_text: The ID of the table within the base to display (e.g. tblXXXXXXXXXXXXXX).
         type: text
-  view_type:
-    type: string
-    default_value: grid
-    title: View Type
-    optional: true
-    help_text:
-      schema_version: 1
-      properties:
-        help_text: The type of Airtable view to use when fetching records.
-        type: select
-        options:
-          - label: Grid
-            value: grid
-          - label: Calendar
-            value: calendar
-          - label: Gallery
-            value: gallery
-          - label: Gantt
-            value: block
-          - label: Kanban
-            value: kanban
-          - label: Timeline
-            value: timeline
-          - label: Form
-            value: form

@@ -124,7 +124,6 @@ const { screenlyJsContent } = createMockScreenlyForScreenshots(
     refresh_interval: '30',
     screenly_oauth_tokens_url: OAUTH_BASE_URL,
     table_id: TABLE_ID,
-    view_type: 'grid',
   },
 )
 

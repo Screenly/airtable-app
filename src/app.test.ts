@@ -1,13 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import '@screenly/edge-apps/test'
 
-import {
-  renderTable,
-  showError,
-  showScreen,
-  recordsToRows,
-  findView,
-} from './app'
+import { renderTable, showError, showScreen, recordsToRows } from './app'
 
 const DOM = `
   <div id="table-wrapper">
@@ -190,21 +184,5 @@ describe('recordsToRows (with schema fields)', () => {
       { label: 'login', color: 'blueLight2' },
       { label: 'urgent', color: 'cyanLight2' },
     ])
-  })
-})
-
-describe('findView', () => {
-  const views = [
-    { id: 'viw1', name: 'Grid View', type: 'grid' },
-    { id: 'viw2', name: 'Calendar View', type: 'calendar' },
-  ]
-
-  test('returns the first matching view by type', () => {
-    expect(findView(views, 'grid')?.id).toBe('viw1')
-    expect(findView(views, 'calendar')?.id).toBe('viw2')
-  })
-
-  test('returns undefined for a non-existent type', () => {
-    expect(findView(views, 'kanban')).toBeUndefined()
   })
 })

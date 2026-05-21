@@ -36,7 +36,6 @@ settings:
   refresh_interval: '30'
   screenly_oauth_tokens_url: 'http://localhost:3000/'
   table_id: '<your Airtable table ID>'
-  view_type: 'grid'
 ```
 
 ## Building
@@ -61,7 +60,7 @@ bun run format
 ## Testing
 
 ```bash
-bun test
+bun run test
 ```
 
 ## Screenshots
@@ -84,21 +83,8 @@ screenly edge-app instance create
 | ------------------ | ------ | -------- | ------------------------------------------------------------------------- |
 | `base_id`          | string | Yes      | Airtable base ID (e.g. `appXXXXXXXXXXXXXX`)                               |
 | `table_id`         | string | Yes      | Airtable table ID within the base (e.g. `tblXXXXXXXXXXXXXX`)              |
-| `view_type`        | string | No       | Type of view to use when fetching records. Default: `grid`                |
 | `refresh_interval` | string | No       | How often (in seconds) to refresh Airtable data. Default: `30`            |
 | `display_errors`   | string | No       | Display errors on screen for debugging (`true`/`false`). Default: `false` |
-
-### View Types
-
-| Value      | Description   |
-| ---------- | ------------- |
-| `grid`     | Grid view     |
-| `calendar` | Calendar view |
-| `gallery`  | Gallery view  |
-| `block`    | Gantt view    |
-| `kanban`   | Kanban view   |
-| `timeline` | Timeline view |
-| `form`     | Form view     |
 
 ## Authentication
 
@@ -106,16 +92,15 @@ This app uses the Screenly OAuth service to obtain an Airtable access token at r
 
 ## Finding Your IDs
 
-Navigate to your table in Airtable. The base ID, table ID, and view ID are all present in the URL:
+Navigate to your table in Airtable. The base ID and table ID are present in the URL:
 
 ```
-https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX/viwXXXXXXXXXXXXXX
-                     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
-                     Base ID             Table ID            View ID
+https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX
+                     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
+                     Base ID             Table ID
 ```
 
 | Prefix | Entity |
 | ------ | ------ |
 | `app`  | Base   |
 | `tbl`  | Table  |
-| `viw`  | View   |

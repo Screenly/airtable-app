@@ -1,4 +1,4 @@
-import type { AirtableField, AirtableRecord, AirtableView } from './api'
+import type { AirtableField, AirtableRecord } from './api'
 
 const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
   blueLight2: { bg: '#cfdfff', text: '#00111f' },
@@ -216,11 +216,4 @@ export function trimRowsToFit(): void {
 
   const lastRow = tbody.rows[tbody.rows.length - 1]
   if (lastRow) lastRow.style.backgroundImage = 'none'
-}
-
-export function findView(
-  views: AirtableView[],
-  viewType: string,
-): AirtableView | undefined {
-  return views.find((v) => v.type === viewType)
 }
