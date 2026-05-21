@@ -1,3 +1,4 @@
+import { formatLocalizedDate, formatTime } from '@screenly/edge-apps'
 import type { AirtableField, AirtableRecord } from './api'
 
 const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -114,9 +115,30 @@ export function renderTable(headers: string[], rows: CellValue[][]): void {
   })
 }
 
+function buildFieldMaps(fields: AirtableField[]): {
+  colorMap: Map<string, Map<string, string | undefined>>
+  dateMap: Map<string, AirtableField>
+} {
+  const colorMap = new Map<string, Map<string, string | undefined>>()
+  const dateMap = new Map<string, AirtableField>()
+  fields.forEach((field) => {
+    if (field.options?.choices) {
+      colorMap.set(
+        field.name,
+        new Map(field.options.choices.map((c) => [c.name, c.color])),
+      )
+    }
+    if (field.type === 'date' || field.type === 'dateTime') {
+      dateMap.set(field.name, field)
+    }
+  })
+  return { colorMap, dateMap }
+}
+
 export function recordsToRows(
   records: AirtableRecord[],
   fields?: AirtableField[],
+  context?: { locale: string; timezone: string },
 ): {
   headers: string[]
   rows: CellValue[][]
@@ -139,21 +161,36 @@ export function recordsToRows(
     })
   }
 
-  const colorMap = new Map<string, Map<string, string | undefined>>()
-  if (fields) {
-    fields.forEach((field) => {
-      if (!field.options?.choices) return
-      colorMap.set(
-        field.name,
-        new Map(field.options.choices.map((c) => [c.name, c.color])),
-      )
-    })
-  }
+  const { colorMap, dateMap } = fields
+    ? buildFieldMaps(fields)
+    : { colorMap: new Map(), dateMap: new Map() }
 
   const rows = records.map((r) =>
     headers.map((h): CellValue => {
       const val = r.fields[h]
       if (val === null || val === undefined) return ''
+
+      const dateField = dateMap.get(h)
+      if (dateField && context && typeof val === 'string') {
+        if (dateField.type === 'date') {
+          const [year, month, day] = val.split('-').map(Number)
+          return formatLocalizedDate(
+            new Date(year, month - 1, day),
+            context.locale,
+          )
+        }
+        const date = new Date(val)
+        const tz = dateField.options?.timeZone ?? context.timezone
+        const datePart = formatLocalizedDate(date, context.locale, {
+          timeZone: tz,
+        })
+        const { hour, minute, dayPeriod } = formatTime(date, context.locale, tz)
+        const timePart = dayPeriod
+          ? `${hour}:${minute} ${dayPeriod}`
+          : `${hour}:${minute}`
+        return `${datePart}  ${timePart}`
+      }
+
       const choiceMap = colorMap.get(h)
       if (choiceMap) {
         const names = Array.isArray(val) ? val.map(String) : [String(val)]

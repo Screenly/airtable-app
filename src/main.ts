@@ -2,7 +2,9 @@ import './css/style.css'
 import '@screenly/edge-apps/components'
 import {
   getCredentials,
+  getLocale,
   getSettingWithDefault,
+  getTimeZone,
   initTokenRefreshLoop,
   setupErrorHandling,
   setupTheme,
@@ -43,7 +45,11 @@ async function loadAndRender(
 
   const gridView = table.views.find((v) => v.type === 'grid')
   const records = await fetchRecords(accessToken, baseId, tableId, gridView?.id)
-  const { headers, rows } = recordsToRows(records, table.fields)
+  const [locale, timezone] = await Promise.all([getLocale(), getTimeZone()])
+  const { headers, rows } = recordsToRows(records, table.fields, {
+    locale,
+    timezone,
+  })
 
   renderTable(headers, rows)
   showScreen('table-wrapper')

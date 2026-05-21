@@ -25,6 +25,9 @@ export interface AirtableField {
   type: string
   options?: {
     choices?: AirtableChoice[]
+    dateFormat?: { name: string; format: string }
+    timeFormat?: { name: string; format: string }
+    timeZone?: string
   }
 }
 
