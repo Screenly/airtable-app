@@ -122,6 +122,15 @@ describe('recordsToRows', () => {
     expect(rows[0][0]).toBe('a, b, c')
   })
 
+  test('uses fieldNames order when provided', () => {
+    const records = [
+      { id: 'rec1', createdTime: '', fields: { B: 2, A: 1, C: 3 } },
+    ]
+    const { headers, rows } = recordsToRows(records, ['A', 'B', 'C'])
+    expect(headers).toEqual(['A', 'B', 'C'])
+    expect(rows[0]).toEqual(['1', '2', '3'])
+  })
+
   test('renders null and undefined fields as empty string', () => {
     const records = [
       {

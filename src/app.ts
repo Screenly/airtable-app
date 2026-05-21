@@ -43,22 +43,30 @@ export function renderTable(headers: string[], rows: string[][]): void {
   })
 }
 
-export function recordsToRows(records: AirtableRecord[]): {
+export function recordsToRows(
+  records: AirtableRecord[],
+  fieldNames?: string[],
+): {
   headers: string[]
   rows: string[][]
 } {
   if (records.length === 0) return { headers: [], rows: [] }
 
-  const seenHeaders = new Set<string>()
-  const headers: string[] = []
-  records.forEach((record) => {
-    Object.keys(record.fields).forEach((field) => {
-      if (!seenHeaders.has(field)) {
-        seenHeaders.add(field)
-        headers.push(field)
-      }
+  let headers: string[]
+  if (fieldNames && fieldNames.length > 0) {
+    headers = fieldNames
+  } else {
+    const seenHeaders = new Set<string>()
+    headers = []
+    records.forEach((record) => {
+      Object.keys(record.fields).forEach((field) => {
+        if (!seenHeaders.has(field)) {
+          seenHeaders.add(field)
+          headers.push(field)
+        }
+      })
     })
-  })
+  }
   const rows = records.map((r) =>
     headers.map((h) => {
       const val = r.fields[h]

@@ -13,9 +13,16 @@ export interface AirtableView {
   type: string
 }
 
+export interface AirtableField {
+  id: string
+  name: string
+  type: string
+}
+
 export interface AirtableTable {
   id: string
   name: string
+  fields: AirtableField[]
   views: AirtableView[]
 }
 
