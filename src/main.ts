@@ -41,7 +41,8 @@ async function loadAndRender(
     titleEl.hidden = false
   }
 
-  const records = await fetchRecords(accessToken, baseId, tableId)
+  const gridView = table.views.find((v) => v.type === 'grid')
+  const records = await fetchRecords(accessToken, baseId, tableId, gridView?.id)
   const { headers, rows } = recordsToRows(records, table.fields)
 
   renderTable(headers, rows)

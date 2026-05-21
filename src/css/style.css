@@ -68,7 +68,7 @@ auto-scaler {
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 3rem;
   min-height: 0;
 }
 
