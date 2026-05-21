@@ -133,6 +133,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   let credentialError: Error | null = null
 
   const refreshToken = async () => {
+    const devToken = getSettingWithDefault<string>('access_token', '')
+    if (devToken) {
+      accessToken = devToken
+      credentialError = null
+      return
+    }
     const { token } = await getCredentials()
     accessToken = token
     credentialError = null

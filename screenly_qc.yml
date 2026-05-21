@@ -8,16 +8,24 @@ categories:
   - Dashboard
 ready_signal: true
 settings:
-  # TODO: Change type to oauth:airtable:base once Screenly supports Airtable OAuth types.
+  access_token:
+    type: secret
+    title: Access Token
+    optional: true
+    help_text:
+      properties:
+        help_text: For testing only. In production, the access token is fetched dynamically via the Screenly OAuth service.
+        type: oauth:airtable:access_token
+      schema_version: 1
   base_id:
     type: string
     title: Base
     optional: false
     help_text:
-      schema_version: 1
       properties:
         help_text: The ID of the Airtable base to display data from (e.g. appXXXXXXXXXXXXXX).
-        type: text
+        type: oauth:airtable:base
+      schema_version: 1
   display_errors:
     type: string
     default_value: 'false'
@@ -49,18 +57,17 @@ settings:
     title: Refresh Interval (seconds)
     optional: true
     help_text:
-      schema_version: 1
       properties:
         advanced: true
         help_text: How often to refresh Airtable data. Defaults to 30 seconds.
         type: number
-  # TODO: Change type to oauth:airtable:table once Screenly supports Airtable OAuth types.
+      schema_version: 1
   table_id:
     type: string
     title: Table
     optional: false
     help_text:
-      schema_version: 1
       properties:
         help_text: The ID of the table within the base to display (e.g. tblXXXXXXXXXXXXXX).
-        type: text
+        type: oauth:airtable:table
+      schema_version: 1
