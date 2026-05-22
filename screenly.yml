@@ -62,6 +62,15 @@ settings:
         help_text: How often to refresh Airtable data. Defaults to 30 seconds.
         type: number
       schema_version: 1
+  stack_field:
+    type: string
+    default_value: ''
+    title: Stack Field (Kanban)
+    optional: true
+    # TODO: help_text type should use a structured oauth:airtable:* type (e.g. oauth:airtable:stack_field)
+    # to allow the UI to render a proper field picker, similar to base_id using oauth:airtable:base.
+    help_text: |
+      For kanban views, the name of the single-select field used to stack columns (e.g. Status). Must be a single-select field. Falls back to the first single-select field if not set.
   view_id:
     type: string
     title: View ID

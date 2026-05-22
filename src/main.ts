@@ -40,6 +40,7 @@ async function loadAndRender(
   accessToken: string,
   baseId: string,
   viewId: string,
+  stackField: string,
 ): Promise<void> {
   const table = await fetchTableByViewId(accessToken, baseId, viewId)
 
@@ -71,7 +72,7 @@ async function loadAndRender(
   )
 
   if (viewType === 'kanban') {
-    renderKanban(records, table.fields)
+    renderKanban(records, table.fields, stackField)
     showView('kanban')
     showScreen('table-wrapper')
   } else {
@@ -90,6 +91,7 @@ async function loadAndRender(
 async function fetchAndRender(
   baseId: string,
   viewId: string,
+  stackField: string,
   getRuntimeState: () => RuntimeState,
   refreshToken: RefreshToken,
   displayErrors: boolean,
@@ -106,7 +108,7 @@ async function fetchAndRender(
   }
 
   try {
-    await loadAndRender(accessToken, baseId, viewId)
+    await loadAndRender(accessToken, baseId, viewId, stackField)
     return
   } catch (err) {
     if (!(err instanceof AuthError)) {
@@ -127,7 +129,7 @@ async function fetchAndRender(
       return
     }
 
-    await loadAndRender(accessToken, baseId, viewId)
+    await loadAndRender(accessToken, baseId, viewId, stackField)
   } catch (retryErr) {
     handleError(
       retryErr instanceof Error
@@ -143,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupTheme()
 
   const baseId = getSettingWithDefault<string>('base_id', '')
+  const stackField = getSettingWithDefault<string>('stack_field', '')
   const viewId = getSettingWithDefault<string>('view_id', '')
   const refreshInterval = getSettingWithDefault<number>('refresh_interval', 30)
   const displayErrors =
@@ -187,7 +190,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const getRuntimeState = (): RuntimeState => ({ accessToken, credentialError })
 
   const run = () =>
-    fetchAndRender(baseId, viewId, getRuntimeState, refreshToken, displayErrors)
+    fetchAndRender(
+      baseId,
+      viewId,
+      stackField,
+      getRuntimeState,
+      refreshToken,
+      displayErrors,
+    )
 
   await run()
   signalReady()

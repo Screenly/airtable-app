@@ -75,12 +75,15 @@ function buildColumn(
 export function renderKanban(
   records: AirtableRecord[],
   fields: AirtableField[],
+  stackFieldName = '',
 ): void {
   const board = document.getElementById('kanban-board')
   if (!board) return
   board.innerHTML = ''
 
-  const stackField = fields.find((f) => f.type === 'singleSelect')
+  const stackField = stackFieldName
+    ? fields.find((f) => f.name === stackFieldName && f.type === 'singleSelect')
+    : fields.find((f) => f.type === 'singleSelect')
   if (!stackField) return
 
   const primaryField = resolvePrimaryField(fields)
