@@ -37,7 +37,7 @@ settings:
   override_timezone: ''
   refresh_interval: '30'
   screenly_oauth_tokens_url: 'http://localhost:3000/'
-  table_id: '<your Airtable table ID>'
+  view_id: '<your Airtable view ID>'
 ```
 
 ## Building
@@ -85,11 +85,11 @@ screenly edge-app instance create
 | ------------------- | ------ | -------- | -------------------------------------------------------------------------------------------------------- |
 | `access_token`      | secret | No       | For testing only. In production, the access token is fetched dynamically via the Screenly OAuth service. |
 | `base_id`           | string | Yes      | Airtable base ID (e.g. `appXXXXXXXXXXXXXX`)                                                              |
-| `table_id`          | string | Yes      | Airtable table ID within the base (e.g. `tblXXXXXXXXXXXXXX`)                                             |
-| `refresh_interval`  | string | No       | How often (in seconds) to refresh Airtable data. Default: `30`                                           |
+| `display_errors`    | string | No       | Display errors on screen for debugging (`true`/`false`). Default: `false`                                |
 | `override_locale`   | string | No       | Override the locale for date formatting (e.g. `en-US`, `fr`). Defaults to GPS-based detection.           |
 | `override_timezone` | string | No       | Override the timezone for date formatting (e.g. `America/New_York`). Defaults to GPS-based detection.    |
-| `display_errors`    | string | No       | Display errors on screen for debugging (`true`/`false`). Default: `false`                                |
+| `refresh_interval`  | string | No       | How often (in seconds) to refresh Airtable data. Default: `30`                                           |
+| `view_id`           | string | Yes      | Airtable view ID (e.g. `viwXXXXXXXXXXXXXX`). Supports grid and kanban views.                             |
 
 ## Limitations
 
@@ -101,15 +101,15 @@ This app uses the Screenly OAuth service to obtain an Airtable access token at r
 
 ## Finding Your IDs
 
-Navigate to your table in Airtable. The base ID and table ID are present in the URL:
+Navigate to your view in Airtable. The base ID and view ID are present in the URL:
 
 ```
-https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX
-                     ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
-                     Base ID             Table ID
+https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX/viwXXXXXXXXXXXXXX
+                     ^^^^^^^^^^^^^^^^^^                     ^^^^^^^^^^^^^^^^^^
+                     Base ID                                View ID
 ```
 
 | Prefix | Entity |
 | ------ | ------ |
 | `app`  | Base   |
-| `tbl`  | Table  |
+| `viw`  | View   |

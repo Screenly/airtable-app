@@ -1,7 +1,7 @@
 import { formatLocalizedDate, formatTime } from '@screenly/edge-apps'
 import type { AirtableField, AirtableRecord } from './api'
 
-const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
+export const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
   blueLight2: { bg: '#cfdfff', text: '#00111f' },
   blueLight1: { bg: '#9cc7ff', text: '#00111f' },
   blueBright: { bg: '#2d7ff9', text: '#ffffff' },
@@ -44,7 +44,7 @@ const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
   grayDark1: { bg: '#666690', text: '#ffffff' },
 }
 
-const PILL_FALLBACK: { bg: string; text: string } = {
+export const PILL_FALLBACK: { bg: string; text: string } = {
   bg: '#e5e5e5',
   text: '#00111f',
 }
@@ -64,10 +64,34 @@ export function showScreen(screenId: string): void {
   })
 }
 
+export type ViewType = 'grid' | 'kanban'
+
+export function showView(type: ViewType): void {
+  const gridEl = document.getElementById('grid-container')
+  const kanbanEl = document.getElementById('kanban-container')
+  if (gridEl) gridEl.style.display = type === 'grid' ? '' : 'none'
+  if (kanbanEl) kanbanEl.style.display = type === 'kanban' ? '' : 'none'
+}
+
 export function showError(message: string): void {
   showScreen('error-screen')
   const el = document.getElementById('error-message')
   if (el) el.textContent = message
+}
+
+export function createPillsContainer(pills: Pill[]): HTMLDivElement {
+  const container = document.createElement('div')
+  container.className = 'cell-pills'
+  pills.forEach((pill) => {
+    const span = document.createElement('span')
+    span.className = 'pill'
+    span.textContent = pill.label
+    const colors = (pill.color && AIRTABLE_COLORS[pill.color]) || PILL_FALLBACK
+    span.style.backgroundColor = colors.bg
+    span.style.color = colors.text
+    container.appendChild(span)
+  })
+  return container
 }
 
 export function renderTable(headers: string[], rows: CellValue[][]): void {
@@ -95,19 +119,7 @@ export function renderTable(headers: string[], rows: CellValue[][]): void {
       if (typeof cell === 'string') {
         td.textContent = cell
       } else {
-        const container = document.createElement('div')
-        container.classList.add('cell-pills')
-        cell.forEach((pill) => {
-          const span = document.createElement('span')
-          span.classList.add('pill')
-          span.textContent = pill.label
-          const colors =
-            (pill.color && AIRTABLE_COLORS[pill.color]) || PILL_FALLBACK
-          span.style.backgroundColor = colors.bg
-          span.style.color = colors.text
-          container.appendChild(span)
-        })
-        td.appendChild(container)
+        td.appendChild(createPillsContainer(cell))
       }
       tr.appendChild(td)
     })

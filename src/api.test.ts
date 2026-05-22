@@ -1,15 +1,16 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test'
-import { fetchTableSchema, fetchRecords, AuthError } from './api'
+import { fetchTableByViewId, fetchRecords, AuthError } from './api'
 
 const TOKEN = 'test-token'
 const BASE_ID = 'appABC123'
 const TABLE_ID = 'tblXYZ456'
+const VIEW_ID = 'viw1'
 
 const MOCK_TABLE = {
   id: TABLE_ID,
   name: 'Team Directory',
   fields: [{ id: 'fld1', name: 'Name', type: 'singleLineText' }],
-  views: [{ id: 'viw1', name: 'Grid view', type: 'grid' }],
+  views: [{ id: VIEW_ID, name: 'Grid view', type: 'grid' }],
 }
 
 const MOCK_RECORDS = [
@@ -35,7 +36,7 @@ function makeResponse(status: number, body: unknown, statusText = '') {
 
 const fetchMock = mock(() => Promise.resolve(new Response()))
 
-describe('fetchTableSchema', () => {
+describe('fetchTableByViewId', () => {
   beforeEach(() => {
     globalThis.fetch = fetchMock
     fetchMock.mockImplementation(() =>
@@ -47,13 +48,13 @@ describe('fetchTableSchema', () => {
     fetchMock.mockReset()
   })
 
-  test('returns the matching table on success', async () => {
-    const table = await fetchTableSchema(TOKEN, BASE_ID, TABLE_ID)
+  test('returns the table containing the view', async () => {
+    const table = await fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)
     expect(table).toEqual(MOCK_TABLE)
   })
 
   test('sends Authorization header', async () => {
-    await fetchTableSchema(TOKEN, BASE_ID, TABLE_ID)
+    await fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)
     const [, options] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect((options?.headers as Record<string, string>)?.Authorization).toBe(
       `Bearer ${TOKEN}`,
@@ -63,14 +64,14 @@ describe('fetchTableSchema', () => {
   test('throws AuthError on 401', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(401, {})))
     await expect(
-      fetchTableSchema(TOKEN, BASE_ID, TABLE_ID),
+      fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID),
     ).rejects.toBeInstanceOf(AuthError)
   })
 
   test('throws AuthError on 403', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(403, {})))
     await expect(
-      fetchTableSchema(TOKEN, BASE_ID, TABLE_ID),
+      fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID),
     ).rejects.toBeInstanceOf(AuthError)
   })
 
@@ -78,17 +79,17 @@ describe('fetchTableSchema', () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(makeResponse(500, {}, 'Internal Server Error')),
     )
-    await expect(fetchTableSchema(TOKEN, BASE_ID, TABLE_ID)).rejects.toThrow(
+    await expect(fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)).rejects.toThrow(
       'Failed to fetch table schema: 500 Internal Server Error',
     )
   })
 
-  test('throws when table is not found in base', async () => {
+  test('throws when no table contains the view', async () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(makeResponse(200, { tables: [] })),
     )
-    await expect(fetchTableSchema(TOKEN, BASE_ID, TABLE_ID)).rejects.toThrow(
-      `Table '${TABLE_ID}' not found in base '${BASE_ID}'`,
+    await expect(fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)).rejects.toThrow(
+      `No table found containing view '${VIEW_ID}' in base '${BASE_ID}'`,
     )
   })
 })

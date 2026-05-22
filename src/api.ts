@@ -7,6 +7,10 @@ export class AuthError extends Error {
 
 const AIRTABLE_API_BASE = 'https://api.airtable.com/v0'
 
+function throwIfAuthError(res: Response): void {
+  if (res.status === 401 || res.status === 403) throw new AuthError()
+}
+
 export interface AirtableView {
   id: string
   name: string
@@ -44,25 +48,35 @@ export interface AirtableRecord {
   createdTime: string
 }
 
-export async function fetchTableSchema(
+async function fetchTables(
   token: string,
   baseId: string,
-  tableId: string,
-): Promise<AirtableTable> {
+): Promise<AirtableTable[]> {
   const res = await fetch(`${AIRTABLE_API_BASE}/meta/bases/${baseId}/tables`, {
     headers: { Authorization: `Bearer ${token}` },
   })
 
-  if (res.status === 401 || res.status === 403) throw new AuthError()
+  throwIfAuthError(res)
   if (!res.ok)
     throw new Error(
       `Failed to fetch table schema: ${res.status} ${res.statusText}`,
     )
 
   const data = (await res.json()) as { tables: AirtableTable[] }
-  const table = data.tables.find((t) => t.id === tableId)
+  return data.tables
+}
+
+export async function fetchTableByViewId(
+  token: string,
+  baseId: string,
+  viewId: string,
+): Promise<AirtableTable> {
+  const tables = await fetchTables(token, baseId)
+  const table = tables.find((t) => t.views.some((v) => v.id === viewId))
   if (!table)
-    throw new Error(`Table '${tableId}' not found in base '${baseId}'`)
+    throw new Error(
+      `No table found containing view '${viewId}' in base '${baseId}'`,
+    )
   return table
 }
 
@@ -80,7 +94,7 @@ export async function fetchRecords(
     { headers: { Authorization: `Bearer ${token}` } },
   )
 
-  if (res.status === 401 || res.status === 403) throw new AuthError()
+  throwIfAuthError(res)
   if (!res.ok)
     throw new Error(`Failed to fetch records: ${res.status} ${res.statusText}`)
 

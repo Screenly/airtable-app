@@ -87,52 +87,6 @@ auto-scaler {
   flex-shrink: 0;
 }
 
-.table-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 1.5rem;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  box-shadow:
-    0 1.25rem 3rem rgba(0, 0, 0, 0.4),
-    0 0.5rem 1rem rgba(0, 0, 0, 0.2);
-}
-
-#data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-#data-table thead tr {
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.15)
-  );
-  background-size: calc(100% - 4rem) 1px;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-}
-
-#data-table th {
-  padding: 1.25rem 2rem;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-#data-table td {
-  padding: 1.125rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 400;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
 .cell-pills {
   display: flex;
   flex-wrap: nowrap;
@@ -148,20 +102,6 @@ auto-scaler {
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
-}
-
-#data-table tbody tr {
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.15)
-  );
-  background-size: calc(100% - 4rem) 1px;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-}
-
-#data-table tbody tr:last-child {
-  background-image: none;
 }
 
 #error-screen {
@@ -251,16 +191,6 @@ auto-scaler {
 
   #table-title {
     font-size: 1.75rem;
-  }
-
-  #data-table th {
-    padding: 1rem 1.25rem;
-    font-size: 0.7rem;
-  }
-
-  #data-table td {
-    padding: 0.875rem 1.25rem;
-    font-size: 1rem;
   }
 
   .error-card {

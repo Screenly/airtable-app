@@ -1,30 +1,39 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import '@screenly/edge-apps/test'
 
-import { renderTable, showError, showScreen, recordsToRows } from './app'
+import {
+  renderTable,
+  showError,
+  showScreen,
+  showView,
+  recordsToRows,
+} from './app'
 
 const DOM = `
   <div id="table-wrapper">
     <h2 id="table-title" hidden></h2>
-    <table id="data-table">
-      <thead id="table-head"></thead>
-      <tbody id="table-body"></tbody>
-    </table>
+    <div id="grid-container" style="display: none">
+      <table id="data-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div id="kanban-container" style="display: none"></div>
   </div>
   <div id="error-screen" style="display: none">
     <p id="error-message"></p>
   </div>
 `
 
+beforeEach(() => {
+  document.body.innerHTML = DOM
+})
+
+afterEach(() => {
+  document.body.innerHTML = ''
+})
+
 describe('DOM functions', () => {
-  beforeEach(() => {
-    document.body.innerHTML = DOM
-  })
-
-  afterEach(() => {
-    document.body.innerHTML = ''
-  })
-
   describe('renderTable', () => {
     test('renders headers', () => {
       renderTable(['Name', 'Department'], [['Alice', 'Engineering']])
@@ -84,6 +93,24 @@ describe('DOM functions', () => {
         'none',
       )
     })
+  })
+})
+
+describe('showView', () => {
+  test('shows grid and hides kanban', () => {
+    showView('grid')
+    expect(document.getElementById('grid-container')?.style.display).toBe('')
+    expect(document.getElementById('kanban-container')?.style.display).toBe(
+      'none',
+    )
+  })
+
+  test('shows kanban and hides grid', () => {
+    showView('kanban')
+    expect(document.getElementById('kanban-container')?.style.display).toBe('')
+    expect(document.getElementById('grid-container')?.style.display).toBe(
+      'none',
+    )
   })
 })
 

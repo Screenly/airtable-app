@@ -62,12 +62,8 @@ settings:
         help_text: How often to refresh Airtable data. Defaults to 30 seconds.
         type: number
       schema_version: 1
-  table_id:
+  view_id:
     type: string
-    title: Table
+    title: View ID
     optional: false
-    help_text:
-      properties:
-        help_text: The ID of the table within the base to display (e.g. tblXXXXXXXXXXXXXX).
-        type: oauth:airtable:table
-      schema_version: 1
+    help_text: The ID of the view to display (e.g. viwXXXXXXXXXXXXXX). Supports grid and kanban views.

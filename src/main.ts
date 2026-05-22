@@ -1,4 +1,6 @@
 import './css/style.css'
+import './css/grid.css'
+import './css/kanban.css'
 import '@screenly/edge-apps/components'
 import {
   getCredentials,
@@ -10,14 +12,18 @@ import {
   setupTheme,
   signalReady,
 } from '@screenly/edge-apps'
-import { fetchTableSchema, fetchRecords, AuthError } from './api'
+import { fetchTableByViewId, fetchRecords, AuthError } from './api'
 import {
   showError,
   showScreen,
+  showView,
   renderTable,
   recordsToRows,
   trimRowsToFit,
 } from './app'
+import { renderKanban } from './kanban'
+
+const SUPPORTED_VIEW_TYPES = new Set(['grid', 'kanban'])
 
 type RefreshToken = () => Promise<void>
 type RuntimeState = {
@@ -33,9 +39,9 @@ function handleError(message: string, displayErrors: boolean): void {
 async function loadAndRender(
   accessToken: string,
   baseId: string,
-  tableId: string,
+  viewId: string,
 ): Promise<void> {
-  const table = await fetchTableSchema(accessToken, baseId, tableId)
+  const table = await fetchTableByViewId(accessToken, baseId, viewId)
 
   const titleEl = document.getElementById('table-title')
   if (titleEl) {
@@ -43,22 +49,47 @@ async function loadAndRender(
     titleEl.hidden = false
   }
 
-  const gridView = table.views.find((v) => v.type === 'grid')
-  const records = await fetchRecords(accessToken, baseId, tableId, gridView?.id)
-  const [locale, timezone] = await Promise.all([getLocale(), getTimeZone()])
-  const { headers, rows } = recordsToRows(records, table.fields, {
-    locale,
-    timezone,
-  })
+  const requestedView = viewId
+    ? table.views.find((v) => v.id === viewId)
+    : undefined
 
-  renderTable(headers, rows)
-  showScreen('table-wrapper')
-  trimRowsToFit()
+  const isSupportedType =
+    requestedView !== undefined && SUPPORTED_VIEW_TYPES.has(requestedView.type)
+
+  const viewType =
+    isSupportedType && requestedView!.type === 'kanban' ? 'kanban' : 'grid'
+
+  const effectiveView = isSupportedType
+    ? requestedView
+    : table.views.find((v) => v.type === 'grid')
+
+  const records = await fetchRecords(
+    accessToken,
+    baseId,
+    table.id,
+    effectiveView?.id,
+  )
+
+  if (viewType === 'kanban') {
+    renderKanban(records, table.fields)
+    showView('kanban')
+    showScreen('table-wrapper')
+  } else {
+    const [locale, timezone] = await Promise.all([getLocale(), getTimeZone()])
+    const { headers, rows } = recordsToRows(records, table.fields, {
+      locale,
+      timezone,
+    })
+    renderTable(headers, rows)
+    showView('grid')
+    showScreen('table-wrapper')
+    trimRowsToFit()
+  }
 }
 
 async function fetchAndRender(
   baseId: string,
-  tableId: string,
+  viewId: string,
   getRuntimeState: () => RuntimeState,
   refreshToken: RefreshToken,
   displayErrors: boolean,
@@ -75,7 +106,7 @@ async function fetchAndRender(
   }
 
   try {
-    await loadAndRender(accessToken, baseId, tableId)
+    await loadAndRender(accessToken, baseId, viewId)
     return
   } catch (err) {
     if (!(err instanceof AuthError)) {
@@ -96,7 +127,7 @@ async function fetchAndRender(
       return
     }
 
-    await loadAndRender(accessToken, baseId, tableId)
+    await loadAndRender(accessToken, baseId, viewId)
   } catch (retryErr) {
     handleError(
       retryErr instanceof Error
@@ -112,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupTheme()
 
   const baseId = getSettingWithDefault<string>('base_id', '')
-  const tableId = getSettingWithDefault<string>('table_id', '')
+  const viewId = getSettingWithDefault<string>('view_id', '')
   const refreshInterval = getSettingWithDefault<number>('refresh_interval', 30)
   const displayErrors =
     getSettingWithDefault<string>('display_errors', 'false') === 'true'
@@ -123,8 +154,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     return
   }
 
-  if (!tableId) {
-    showError('Please configure the Table ID in settings.')
+  if (!viewId) {
+    showError('Please configure the View ID in settings.')
     signalReady()
     return
   }
@@ -156,13 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const getRuntimeState = (): RuntimeState => ({ accessToken, credentialError })
 
   const run = () =>
-    fetchAndRender(
-      baseId,
-      tableId,
-      getRuntimeState,
-      refreshToken,
-      displayErrors,
-    )
+    fetchAndRender(baseId, viewId, getRuntimeState, refreshToken, displayErrors)
 
   await run()
   signalReady()
