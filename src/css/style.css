@@ -50,6 +50,11 @@ auto-scaler {
 
 .header {
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1.25rem 3rem rgba(0, 0, 0, 0.4),
+    0 0.5rem 1rem rgba(0, 0, 0, 0.2);
 }
 
 .content {

@@ -36,7 +36,7 @@ const app = express()
 app.use(cors({ origin: /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/ }))
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
-app.use(express.static(path.join(__dirname, '..', 'public')))
+app.use(express.static(path.join(__dirname, '..', 'dist')))
 app.use(
   '/vendor/htmx',
   express.static(path.join(__dirname, '..', 'node_modules', 'htmx.org', 'dist'))
@@ -44,6 +44,12 @@ app.use(
 app.use(
   '/vendor/alpine',
   express.static(path.join(__dirname, '..', 'node_modules', 'alpinejs', 'dist'))
+)
+app.use(
+  '/vendor/lucide',
+  express.static(
+    path.join(__dirname, '..', 'node_modules', 'lucide', 'dist', 'umd')
+  )
 )
 
 interface TokenData {
