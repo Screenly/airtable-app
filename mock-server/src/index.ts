@@ -161,7 +161,7 @@ app.get('/access_token/', (_req, res) => {
   const tokens = loadTokens()
   if (!tokens) {
     res
-      .status(404)
+      .status(401)
       .json({ error: 'No tokens stored. Please authenticate first.' })
     return
   }
