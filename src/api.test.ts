@@ -35,6 +35,7 @@ function makeResponse(status: number, body: unknown, statusText = '') {
 }
 
 const fetchMock = mock(() => Promise.resolve(new Response()))
+const originalFetch = globalThis.fetch
 
 describe('fetchTableByViewId', () => {
   beforeEach(() => {
@@ -46,6 +47,7 @@ describe('fetchTableByViewId', () => {
 
   afterEach(() => {
     fetchMock.mockReset()
+    globalThis.fetch = originalFetch
   })
 
   test('returns the table containing the view', async () => {
@@ -104,6 +106,7 @@ describe('fetchRecords', () => {
 
   afterEach(() => {
     fetchMock.mockReset()
+    globalThis.fetch = originalFetch
   })
 
   test('returns records on success', async () => {
