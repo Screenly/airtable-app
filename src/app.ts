@@ -200,7 +200,7 @@ export function recordsToRows(
         const timePart = dayPeriod
           ? `${hour}:${minute} ${dayPeriod}`
           : `${hour}:${minute}`
-        return `${datePart}  ${timePart}`
+        return `${datePart} ${timePart}`
       }
 
       const choiceMap = colorMap.get(h)
