@@ -158,15 +158,19 @@ for (const { name: viewName, viewId } of VIEWS) {
         })
       })
 
-      await page.route('**/api.airtable.com/**', async (route) => {
-        const url = route.request().url()
-        const body = url.includes('/meta/bases/')
-          ? JSON.stringify(MOCK_SCHEMA)
-          : JSON.stringify(MOCK_RECORDS)
+      await page.route('**/api.airtable.com/v0/meta/**', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body,
+          body: JSON.stringify(MOCK_SCHEMA),
+        })
+      })
+
+      await page.route(`**/api.airtable.com/v0/${BASE_ID}/**`, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(MOCK_RECORDS),
         })
       })
 

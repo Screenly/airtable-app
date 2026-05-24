@@ -4,141 +4,16 @@ import './css/kanban.css'
 import '@screenly/edge-apps/components'
 import {
   getCredentials,
-  getLocale,
   getSettingWithDefault,
-  getTimeZone,
   initTokenRefreshLoop,
   setupErrorHandling,
   setupTheme,
   signalReady,
 } from '@screenly/edge-apps'
-import { fetchTableByViewId, fetchRecords, AuthError } from './api'
-import {
-  showError,
-  showScreen,
-  showView,
-  renderTable,
-  recordsToRows,
-  trimRowsToFit,
-} from './app'
-import { renderKanban } from './kanban'
-
-const SUPPORTED_VIEW_TYPES = new Set(['grid', 'kanban'])
-
-type RefreshToken = () => Promise<void>
-type RuntimeState = {
-  accessToken: string | null
-  credentialError: Error | null
-}
-
-function handleError(message: string, displayErrors: boolean): void {
-  if (displayErrors) throw new Error(message)
-  showError(message)
-}
-
-async function loadAndRender(
-  accessToken: string,
-  baseId: string,
-  viewId: string,
-  stackField: string,
-): Promise<void> {
-  const table = await fetchTableByViewId(accessToken, baseId, viewId)
-
-  const titleEl = document.getElementById('table-title')
-  if (titleEl) {
-    titleEl.textContent = table.name
-    titleEl.hidden = false
-  }
-
-  const requestedView = viewId
-    ? table.views.find((v) => v.id === viewId)
-    : undefined
-
-  const isSupportedType =
-    requestedView !== undefined && SUPPORTED_VIEW_TYPES.has(requestedView.type)
-
-  const viewType =
-    isSupportedType && requestedView!.type === 'kanban' ? 'kanban' : 'grid'
-
-  const effectiveView = isSupportedType
-    ? requestedView
-    : table.views.find((v) => v.type === 'grid')
-
-  const records = await fetchRecords(
-    accessToken,
-    baseId,
-    table.id,
-    effectiveView?.id,
-  )
-
-  if (viewType === 'kanban') {
-    renderKanban(records, table.fields, stackField)
-    showView('kanban')
-    showScreen('table-wrapper')
-  } else {
-    const [locale, timezone] = await Promise.all([getLocale(), getTimeZone()])
-    const { headers, rows } = recordsToRows(records, table.fields, {
-      locale,
-      timezone,
-    })
-    renderTable(headers, rows)
-    showView('grid')
-    showScreen('table-wrapper')
-    trimRowsToFit()
-  }
-}
-
-async function fetchAndRender(
-  baseId: string,
-  viewId: string,
-  stackField: string,
-  getRuntimeState: () => RuntimeState,
-  refreshToken: RefreshToken,
-  displayErrors: boolean,
-): Promise<void> {
-  let { accessToken } = getRuntimeState()
-  const { credentialError } = getRuntimeState()
-
-  if (!accessToken) {
-    handleError(
-      credentialError?.message ?? 'No access token available.',
-      displayErrors,
-    )
-    return
-  }
-
-  try {
-    await loadAndRender(accessToken, baseId, viewId, stackField)
-    return
-  } catch (err) {
-    if (!(err instanceof AuthError)) {
-      handleError(
-        err instanceof Error ? err.message : 'Failed to load data.',
-        displayErrors,
-      )
-      return
-    }
-  }
-
-  try {
-    await refreshToken()
-    ;({ accessToken } = getRuntimeState())
-
-    if (!accessToken) {
-      handleError('No access token after refresh.', displayErrors)
-      return
-    }
-
-    await loadAndRender(accessToken, baseId, viewId, stackField)
-  } catch (retryErr) {
-    handleError(
-      retryErr instanceof Error
-        ? retryErr.message
-        : 'Session expired. Please re-authenticate.',
-      displayErrors,
-    )
-  }
-}
+import { showError, createErrorReporter } from './app'
+import { withFreshToken } from './auth'
+import type { RuntimeState } from './auth'
+import { renderView } from './render'
 
 document.addEventListener('DOMContentLoaded', async () => {
   setupErrorHandling()
@@ -150,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const refreshInterval = getSettingWithDefault<number>('refresh_interval', 30)
   const displayErrors =
     getSettingWithDefault<string>('display_errors', 'false') === 'true'
+  const reportError = createErrorReporter(displayErrors)
 
   if (!baseId) {
     showError('Please configure the Base ID in settings.')
@@ -190,13 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const getRuntimeState = (): RuntimeState => ({ accessToken, credentialError })
 
   const run = () =>
-    fetchAndRender(
-      baseId,
-      viewId,
-      stackField,
-      getRuntimeState,
-      refreshToken,
-      displayErrors,
+    withFreshToken(getRuntimeState, refreshToken, reportError, (token) =>
+      renderView(token, baseId, viewId, stackField),
     )
 
   await run()

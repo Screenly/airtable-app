@@ -1,19 +1,12 @@
 import type { AirtableField, AirtableRecord } from './api'
-import { AIRTABLE_COLORS, PILL_FALLBACK } from './app'
-
-const TEXT_FIELD_TYPES = new Set([
-  'singleLineText',
-  'multilineText',
-  'richText',
-  'email',
-  'url',
-  'phoneNumber',
-])
+import { AIRTABLE_COLORS, PILL_FALLBACK, TEXT_FIELD_TYPES } from './constants'
 
 function resolvePrimaryField(
   fields: AirtableField[],
 ): AirtableField | undefined {
-  if (TEXT_FIELD_TYPES.has(fields[0]?.type)) return fields[0]
+  if (TEXT_FIELD_TYPES.has(fields[0]?.type)) {
+    return fields[0]
+  }
   return fields.find((f) => TEXT_FIELD_TYPES.has(f.type))
 }
 
@@ -35,15 +28,10 @@ function buildCard(
   return card
 }
 
-function buildColumn(
+function buildColumnHeader(
   name: string,
   color: string | undefined,
-  colRecords: AirtableRecord[],
-  primaryField: AirtableField | undefined,
 ): HTMLDivElement {
-  const column = document.createElement('div')
-  column.className = 'kanban-column'
-
   const header = document.createElement('div')
   header.className = 'kanban-column-header'
 
@@ -60,7 +48,18 @@ function buildColumn(
   titleEl.textContent = name || 'No Status'
   header.appendChild(titleEl)
 
-  column.appendChild(header)
+  return header
+}
+
+function buildColumn(
+  name: string,
+  color: string | undefined,
+  colRecords: AirtableRecord[],
+  primaryField: AirtableField | undefined,
+): HTMLDivElement {
+  const column = document.createElement('div')
+  column.className = 'kanban-column'
+  column.appendChild(buildColumnHeader(name, color))
 
   const cardsEl = document.createElement('div')
   cardsEl.className = 'kanban-cards'
@@ -72,21 +71,16 @@ function buildColumn(
   return column
 }
 
-export function renderKanban(
+type KanbanColumn = {
+  name: string
+  color?: string
+  records: AirtableRecord[]
+}
+
+function groupByChoice(
   records: AirtableRecord[],
-  fields: AirtableField[],
-  stackFieldName = '',
-): void {
-  const board = document.getElementById('kanban-board')
-  if (!board) return
-  board.innerHTML = ''
-
-  const stackField = stackFieldName
-    ? fields.find((f) => f.name === stackFieldName && f.type === 'singleSelect')
-    : fields.find((f) => f.type === 'singleSelect')
-  if (!stackField) return
-
-  const primaryField = resolvePrimaryField(fields)
+  stackField: AirtableField,
+): KanbanColumn[] {
   const choices = stackField.options?.choices ?? []
 
   const columnMap = new Map<string, AirtableRecord[]>()
@@ -104,11 +98,7 @@ export function renderKanban(
     }
   })
 
-  const columns: Array<{
-    name: string
-    color?: string
-    records: AirtableRecord[]
-  }> = choices.map((c) => ({
+  const columns: KanbanColumn[] = choices.map((c) => ({
     name: c.name,
     color: c.color,
     records: columnMap.get(c.name) ?? [],
@@ -118,6 +108,34 @@ export function renderKanban(
   if (uncategorized.length > 0) {
     columns.push({ name: '', records: uncategorized })
   }
+
+  return columns
+}
+
+export function renderKanban(
+  records: AirtableRecord[],
+  fields: AirtableField[],
+  stackFieldName = '',
+): void {
+  const board = document.getElementById('kanban-board')
+  if (!board) {
+    return
+  }
+  board.innerHTML = ''
+
+  const stackField = stackFieldName
+    ? fields.find((f) => f.name === stackFieldName && f.type === 'singleSelect')
+    : fields.find((f) => f.type === 'singleSelect')
+  if (!stackField) {
+    const reason = stackFieldName
+      ? `field "${stackFieldName}" not found or is not a singleSelect`
+      : 'no singleSelect field found in schema'
+    console.warn(`renderKanban: cannot render board: ${reason}`)
+    return
+  }
+
+  const primaryField = resolvePrimaryField(fields)
+  const columns = groupByChoice(records, stackField)
 
   columns.forEach(({ name, color, records: colRecords }) => {
     board.appendChild(buildColumn(name, color, colRecords, primaryField))

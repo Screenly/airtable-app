@@ -1,53 +1,12 @@
 import { formatLocalizedDate, formatTime } from '@screenly/edge-apps'
-import type { AirtableField, AirtableRecord } from './api'
+import type { AirtableField, AirtableRecord, AirtableView } from './api'
+import {
+  AIRTABLE_COLORS,
+  PILL_FALLBACK,
+  SUPPORTED_VIEW_TYPES,
+} from './constants'
 
-export const AIRTABLE_COLORS: Record<string, { bg: string; text: string }> = {
-  blueLight2: { bg: '#cfdfff', text: '#00111f' },
-  blueLight1: { bg: '#9cc7ff', text: '#00111f' },
-  blueBright: { bg: '#2d7ff9', text: '#ffffff' },
-  blueDark1: { bg: '#2750ae', text: '#ffffff' },
-  cyanLight2: { bg: '#d0f0fd', text: '#00111f' },
-  cyanLight1: { bg: '#77d1f3', text: '#00111f' },
-  cyanBright: { bg: '#18bfff', text: '#00111f' },
-  cyanDark1: { bg: '#0d78a4', text: '#ffffff' },
-  tealLight2: { bg: '#c2f5e9', text: '#00111f' },
-  tealLight1: { bg: '#72ddc3', text: '#00111f' },
-  tealBright: { bg: '#20d9d2', text: '#00111f' },
-  tealDark1: { bg: '#06a09b', text: '#ffffff' },
-  greenLight2: { bg: '#d1f7c4', text: '#00111f' },
-  greenLight1: { bg: '#93e088', text: '#00111f' },
-  greenBright: { bg: '#20c933', text: '#ffffff' },
-  greenDark1: { bg: '#338a17', text: '#ffffff' },
-  yellowLight2: { bg: '#ffeab6', text: '#00111f' },
-  yellowLight1: { bg: '#ffd66e', text: '#00111f' },
-  yellowBright: { bg: '#fcb400', text: '#00111f' },
-  yellowDark1: { bg: '#b87503', text: '#ffffff' },
-  orangeLight2: { bg: '#fee2d5', text: '#00111f' },
-  orangeLight1: { bg: '#ffa981', text: '#00111f' },
-  orangeBright: { bg: '#ff6f2c', text: '#ffffff' },
-  orangeDark1: { bg: '#d74d26', text: '#ffffff' },
-  redLight2: { bg: '#ffdce5', text: '#00111f' },
-  redLight1: { bg: '#ff9eb7', text: '#00111f' },
-  redBright: { bg: '#f82b60', text: '#ffffff' },
-  redDark1: { bg: '#ba1e45', text: '#ffffff' },
-  pinkLight2: { bg: '#ffdaf6', text: '#00111f' },
-  pinkLight1: { bg: '#f99de2', text: '#00111f' },
-  pinkBright: { bg: '#ff08c2', text: '#ffffff' },
-  pinkDark1: { bg: '#b2158b', text: '#ffffff' },
-  purpleLight2: { bg: '#ede2fe', text: '#00111f' },
-  purpleLight1: { bg: '#cdb0ff', text: '#00111f' },
-  purpleBright: { bg: '#8b46ff', text: '#ffffff' },
-  purpleDark1: { bg: '#6b1fb1', text: '#ffffff' },
-  grayLight2: { bg: '#eeeefe', text: '#00111f' },
-  grayLight1: { bg: '#cccce4', text: '#00111f' },
-  grayBright: { bg: '#9999bc', text: '#ffffff' },
-  grayDark1: { bg: '#666690', text: '#ffffff' },
-}
-
-export const PILL_FALLBACK: { bg: string; text: string } = {
-  bg: '#e5e5e5',
-  text: '#00111f',
-}
+export { AIRTABLE_COLORS, PILL_FALLBACK }
 
 export interface Pill {
   label: string
@@ -60,23 +19,56 @@ export function showScreen(screenId: string): void {
   const screens = ['table-wrapper', 'error-screen']
   screens.forEach((id) => {
     const el = document.getElementById(id)
-    if (el) el.style.display = id === screenId ? 'flex' : 'none'
+    if (el) {
+      el.style.display = id === screenId ? 'flex' : 'none'
+    }
   })
 }
 
 export type ViewType = 'grid' | 'kanban'
 
+export function resolveView(
+  views: AirtableView[],
+  viewId: string,
+): { viewType: ViewType; effectiveViewId: string | undefined } {
+  const requestedView = views.find((v) => v.id === viewId)
+  const isSupportedType =
+    requestedView !== undefined && SUPPORTED_VIEW_TYPES.has(requestedView.type)
+  const viewType: ViewType =
+    isSupportedType && requestedView!.type === 'kanban' ? 'kanban' : 'grid'
+  const effectiveView = isSupportedType
+    ? requestedView
+    : views.find((v) => v.type === 'grid')
+  return { viewType, effectiveViewId: effectiveView?.id }
+}
+
 export function showView(type: ViewType): void {
   const gridEl = document.getElementById('grid-container')
   const kanbanEl = document.getElementById('kanban-container')
-  if (gridEl) gridEl.style.display = type === 'grid' ? '' : 'none'
-  if (kanbanEl) kanbanEl.style.display = type === 'kanban' ? '' : 'none'
+  if (gridEl) {
+    gridEl.style.display = type === 'grid' ? '' : 'none'
+  }
+  if (kanbanEl) {
+    kanbanEl.style.display = type === 'kanban' ? '' : 'none'
+  }
 }
 
 export function showError(message: string): void {
   showScreen('error-screen')
   const el = document.getElementById('error-message')
-  if (el) el.textContent = message
+  if (el) {
+    el.textContent = message
+  }
+}
+
+export type ErrorReporter = (message: string) => void
+
+export function createErrorReporter(displayErrors: boolean): ErrorReporter {
+  if (displayErrors)
+    return (msg) => {
+      throw new Error(msg)
+    }
+  return showError
 }
 
 export function createPillsContainer(pills: Pill[]): HTMLDivElement {
@@ -97,12 +89,16 @@ export function createPillsContainer(pills: Pill[]): HTMLDivElement {
 export function renderTable(headers: string[], rows: CellValue[][]): void {
   const thead = document.getElementById('table-head')
   const tbody = document.getElementById('table-body')
-  if (!thead || !tbody) return
+  if (!thead || !tbody) {
+    return
+  }
 
   thead.innerHTML = ''
   tbody.innerHTML = ''
 
-  if (headers.length === 0) return
+  if (headers.length === 0) {
+    return
+  }
 
   const headerRow = document.createElement('tr')
   headers.forEach((header) => {
@@ -147,6 +143,60 @@ function buildFieldMaps(fields: AirtableField[]): {
   return { colorMap, dateMap }
 }
 
+function buildHeaders(
+  records: AirtableRecord[],
+  fields?: AirtableField[],
+): string[] {
+  if (fields && fields.length > 0) {
+    return fields.map((f) => f.name)
+  }
+  const seen = new Set(records.flatMap((r) => Object.keys(r.fields)))
+  return [...seen]
+}
+
+function formatCell(
+  val: unknown,
+  dateField: AirtableField | undefined,
+  choiceMap: Map<string, string | undefined> | undefined,
+  context?: { locale: string; timezone: string },
+): CellValue {
+  if (val === null || val === undefined) {
+    return ''
+  }
+
+  if (dateField && context && typeof val === 'string') {
+    if (dateField.type === 'date') {
+      const [year, month, day] = val.split('-').map(Number)
+      const date = new Date(year, month - 1, day)
+      if (isNaN(date.getTime())) {
+        return val
+      }
+      return formatLocalizedDate(date, context.locale)
+    }
+    const date = new Date(val)
+    if (isNaN(date.getTime())) {
+      return val
+    }
+    const tz = dateField.options?.timeZone ?? context.timezone
+    const datePart = formatLocalizedDate(date, context.locale, { timeZone: tz })
+    const { hour, minute, dayPeriod } = formatTime(date, context.locale, tz)
+    const timePart = dayPeriod
+      ? `${hour}:${minute} ${dayPeriod}`
+      : `${hour}:${minute}`
+    return `${datePart} ${timePart}`
+  }
+
+  if (choiceMap) {
+    const names = Array.isArray(val) ? val.map(String) : [String(val)]
+    return names.map((name) => ({ label: name, color: choiceMap.get(name) }))
+  }
+
+  if (Array.isArray(val)) {
+    return val.join(', ')
+  }
+  return String(val)
+}
+
 export function recordsToRows(
   records: AirtableRecord[],
   fields?: AirtableField[],
@@ -155,65 +205,19 @@ export function recordsToRows(
   headers: string[]
   rows: CellValue[][]
 } {
-  if (records.length === 0) return { headers: [], rows: [] }
-
-  let headers: string[]
-  if (fields && fields.length > 0) {
-    headers = fields.map((f) => f.name)
-  } else {
-    const seenHeaders = new Set<string>()
-    headers = []
-    records.forEach((record) => {
-      Object.keys(record.fields).forEach((field) => {
-        if (!seenHeaders.has(field)) {
-          seenHeaders.add(field)
-          headers.push(field)
-        }
-      })
-    })
+  if (records.length === 0) {
+    return { headers: [], rows: [] }
   }
 
+  const headers = buildHeaders(records, fields)
   const { colorMap, dateMap } = fields
     ? buildFieldMaps(fields)
     : { colorMap: new Map(), dateMap: new Map() }
 
   const rows = records.map((r) =>
-    headers.map((h): CellValue => {
-      const val = r.fields[h]
-      if (val === null || val === undefined) return ''
-
-      const dateField = dateMap.get(h)
-      if (dateField && context && typeof val === 'string') {
-        if (dateField.type === 'date') {
-          const [year, month, day] = val.split('-').map(Number)
-          return formatLocalizedDate(
-            new Date(year, month - 1, day),
-            context.locale,
-          )
-        }
-        const date = new Date(val)
-        const tz = dateField.options?.timeZone ?? context.timezone
-        const datePart = formatLocalizedDate(date, context.locale, {
-          timeZone: tz,
-        })
-        const { hour, minute, dayPeriod } = formatTime(date, context.locale, tz)
-        const timePart = dayPeriod
-          ? `${hour}:${minute} ${dayPeriod}`
-          : `${hour}:${minute}`
-        return `${datePart} ${timePart}`
-      }
-
-      const choiceMap = colorMap.get(h)
-      if (choiceMap) {
-        const names = Array.isArray(val) ? val.map(String) : [String(val)]
-        return names.map((name) => ({
-          label: name,
-          color: choiceMap.get(name),
-        }))
-      }
-      if (Array.isArray(val)) return val.join(', ')
-      return String(val)
-    }),
+    headers.map((h) =>
+      formatCell(r.fields[h], dateMap.get(h), colorMap.get(h), context),
+    ),
   )
 
   return { headers, rows }
@@ -227,16 +231,24 @@ export function trimRowsToFit(): void {
   const tbody = document.getElementById(
     'table-body',
   ) as HTMLTableSectionElement | null
-  if (!wrapper || !thead || !tbody) return
+  if (!wrapper || !thead || !tbody) {
+    return
+  }
 
   const rows = Array.from(tbody.rows)
-  if (rows.length < 2) return
+  if (rows.length < 2) {
+    return
+  }
 
   const rowHeight = rows[0].offsetHeight
-  if (rowHeight === 0) return
+  if (rowHeight === 0) {
+    return
+  }
 
   const container = wrapper.parentElement
-  if (!container) return
+  if (!container) {
+    return
+  }
 
   const titleEl = wrapper.querySelector('#table-title') as HTMLElement | null
   const titleHeight = titleEl ? titleEl.offsetHeight : 0
@@ -257,12 +269,16 @@ export function trimRowsToFit(): void {
     paddingBottom
 
   const maxRows = Math.floor(availableHeight / rowHeight)
-  if (maxRows >= rows.length) return
+  if (maxRows >= rows.length) {
+    return
+  }
 
   for (let i = rows.length - 1; i >= maxRows; i--) {
     rows[i].remove()
   }
 
   const lastRow = tbody.rows[tbody.rows.length - 1]
-  if (lastRow) lastRow.style.backgroundImage = 'none'
+  if (lastRow) {
+    lastRow.style.backgroundImage = 'none'
+  }
 }

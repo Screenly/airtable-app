@@ -8,7 +8,9 @@ export class AuthError extends Error {
 const AIRTABLE_API_BASE = 'https://api.airtable.com/v0'
 
 function throwIfAuthError(res: Response): void {
-  if (res.status === 401 || res.status === 403) throw new AuthError()
+  if (res.status === 401 || res.status === 403) {
+    throw new AuthError()
+  }
 }
 
 export interface AirtableView {
@@ -87,7 +89,9 @@ export async function fetchRecords(
   viewId?: string,
 ): Promise<AirtableRecord[]> {
   const params = new URLSearchParams({ pageSize: '100' })
-  if (viewId) params.set('view', viewId)
+  if (viewId) {
+    params.set('view', viewId)
+  }
 
   const res = await fetch(
     `${AIRTABLE_API_BASE}/${baseId}/${tableId}?${params}`,

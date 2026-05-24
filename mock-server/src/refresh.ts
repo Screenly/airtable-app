@@ -19,7 +19,6 @@ async function refreshTokens(): Promise<void> {
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
     refresh_token: tokens.refresh_token,
-    client_id: clientId,
   })
 
   const headers: Record<string, string> = {
@@ -29,7 +28,8 @@ async function refreshTokens(): Promise<void> {
   if (clientSecret) {
     const creds = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
     headers['Authorization'] = `Basic ${creds}`
-    body.delete('client_id')
+  } else {
+    body.set('client_id', clientId)
   }
 
   const res = await fetch(AIRTABLE_TOKEN_URL, {

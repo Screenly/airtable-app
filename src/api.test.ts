@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test'
 import { fetchTableByViewId, fetchRecords, AuthError } from './api'
 
 const TOKEN = 'test-token'
@@ -50,34 +50,34 @@ describe('fetchTableByViewId', () => {
     globalThis.fetch = originalFetch
   })
 
-  test('returns the table containing the view', async () => {
+  it('when view exists, should return the matching table', async () => {
     const table = await fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)
     expect(table).toEqual(MOCK_TABLE)
   })
 
-  test('sends Authorization header', async () => {
+  it('should send an Authorization header', async () => {
     await fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID)
     const [, options] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect((options?.headers as Record<string, string>)?.Authorization).toBe(
-      `Bearer ${TOKEN}`,
+      'Bearer test-token',
     )
   })
 
-  test('throws AuthError on 401', async () => {
+  it('when response is 401, should throw AuthError', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(401, {})))
     await expect(
       fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID),
     ).rejects.toBeInstanceOf(AuthError)
   })
 
-  test('throws AuthError on 403', async () => {
+  it('when response is 403, should throw AuthError', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(403, {})))
     await expect(
       fetchTableByViewId(TOKEN, BASE_ID, VIEW_ID),
     ).rejects.toBeInstanceOf(AuthError)
   })
 
-  test('throws on non-ok status', async () => {
+  it('when response status is not ok, should throw a descriptive error', async () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(makeResponse(500, {}, 'Internal Server Error')),
     )
@@ -86,7 +86,7 @@ describe('fetchTableByViewId', () => {
     )
   })
 
-  test('throws when no table contains the view', async () => {
+  it('when no table contains the view, should throw a descriptive error', async () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(makeResponse(200, { tables: [] })),
     )
@@ -109,44 +109,44 @@ describe('fetchRecords', () => {
     globalThis.fetch = originalFetch
   })
 
-  test('returns records on success', async () => {
+  it('when successful, should return records', async () => {
     const records = await fetchRecords(TOKEN, BASE_ID, TABLE_ID)
     expect(records).toEqual(MOCK_RECORDS)
   })
 
-  test('includes pageSize=100 in URL', async () => {
+  it('should include pageSize=100 in the request URL', async () => {
     await fetchRecords(TOKEN, BASE_ID, TABLE_ID)
     const [url] = fetchMock.mock.calls[0] as [string]
     expect(url).toContain('pageSize=100')
   })
 
-  test('includes view param when viewId is provided', async () => {
+  it('when viewId is provided, should include view param in URL', async () => {
     await fetchRecords(TOKEN, BASE_ID, TABLE_ID, 'viwABC123')
     const [url] = fetchMock.mock.calls[0] as [string]
     expect(url).toContain('view=viwABC123')
   })
 
-  test('omits view param when viewId is not provided', async () => {
+  it('when viewId is not provided, should omit view param from URL', async () => {
     await fetchRecords(TOKEN, BASE_ID, TABLE_ID)
     const [url] = fetchMock.mock.calls[0] as [string]
     expect(url).not.toContain('view=')
   })
 
-  test('throws AuthError on 401', async () => {
+  it('when response is 401, should throw AuthError', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(401, {})))
     await expect(fetchRecords(TOKEN, BASE_ID, TABLE_ID)).rejects.toBeInstanceOf(
       AuthError,
     )
   })
 
-  test('throws AuthError on 403', async () => {
+  it('when response is 403, should throw AuthError', async () => {
     fetchMock.mockImplementation(() => Promise.resolve(makeResponse(403, {})))
     await expect(fetchRecords(TOKEN, BASE_ID, TABLE_ID)).rejects.toBeInstanceOf(
       AuthError,
     )
   })
 
-  test('throws on non-ok status', async () => {
+  it('when response status is not ok, should throw a descriptive error', async () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(makeResponse(500, {}, 'Internal Server Error')),
     )
