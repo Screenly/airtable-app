@@ -113,7 +113,9 @@ app.post('/start', (_req, res) => {
     code_challenge_method: 'S256',
   })
 
-  res.redirect(`${AIRTABLE_AUTH_URL}?${params.toString()}`)
+  res
+    .setHeader('HX-Redirect', `${AIRTABLE_AUTH_URL}?${params.toString()}`)
+    .sendStatus(204)
 })
 
 app.get('/oauth/callback', async (req, res) => {
@@ -170,7 +172,7 @@ app.get('/access_token/', (_req, res) => {
 
 app.post('/clear', (_req, res) => {
   clearTokens()
-  res.redirect('/')
+  res.setHeader('HX-Redirect', '/').sendStatus(204)
 })
 
 app.listen(PORT, () => {

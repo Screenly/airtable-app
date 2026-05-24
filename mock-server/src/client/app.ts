@@ -23,6 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 document.addEventListener('alpine:init', () => {
+  Alpine.data('pageLayout', () => ({
+    disconnectOpen: false,
+    reconnectOpen: false,
+  }))
+
   Alpine.data<TokenViewerData>('tokenViewer', () => ({
     copied: null,
     tokens: {
