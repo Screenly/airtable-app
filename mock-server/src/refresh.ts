@@ -55,6 +55,8 @@ async function refreshTokens(): Promise<void> {
 }
 
 export function startRefreshLoop(): void {
+  refreshTokens().catch((err) => console.error('Token refresh error:', err))
+
   setInterval(async () => {
     try {
       await refreshTokens()
