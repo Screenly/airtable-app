@@ -13,7 +13,7 @@ import {
 import { showError, createErrorReporter } from './app'
 import { withFreshToken } from './auth'
 import type { RuntimeState } from './auth'
-import { renderView } from './render'
+import { fetchViewData, renderView } from './render'
 
 document.addEventListener('DOMContentLoaded', async () => {
   setupErrorHandling()
@@ -66,8 +66,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const getRuntimeState = (): RuntimeState => ({ accessToken, credentialError })
 
   const run = () =>
-    withFreshToken(getRuntimeState, refreshToken, reportError, (token) =>
-      renderView(token, baseId, viewId, stackField),
+    withFreshToken(
+      getRuntimeState,
+      refreshToken,
+      reportError,
+      async (token) => {
+        const viewData = await fetchViewData(token, baseId, viewId)
+        renderView(viewData, stackField)
+      },
     )
 
   await run()
