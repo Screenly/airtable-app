@@ -3,27 +3,18 @@ name: Update Edge App
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: Target environment to update
-        required: true
-        default: stage
-        type: choice
-        options:
-          - stage
-          - production
   push:
     branches:
       - development
       - main
 
-run-name: Updating Airtable App in ${{ (github.event_name == 'workflow_dispatch' && inputs.environment) || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
+run-name: Updating Airtable App in ${{ github.event_name == 'workflow_dispatch' && 'stage' || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
 
 jobs:
   deploy-stage:
     name: Updating Airtable App in stage
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/development') || (github.event_name == 'workflow_dispatch' && inputs.environment == 'stage')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/development') || github.event_name == 'workflow_dispatch'
     environment: stage
     steps:
       - uses: actions/checkout@v6
@@ -57,7 +48,7 @@ jobs:
   deploy-production:
     name: Updating Airtable App in production
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     steps:
       - uses: actions/checkout@v6
