@@ -1,0 +1,78 @@
+---
+syntax: manifest_v1
+description: Display Airtable data on your Screenly digital signage screens
+icon: https://playground.srly.io/edge-apps/icons/airtable.svg
+author: Screenly, Inc.
+categories:
+  - Productivity
+  - Dashboard
+ready_signal: true
+settings:
+  access_token:
+    type: secret
+    title: Access Token
+    optional: true
+    help_text:
+      properties:
+        help_text: For testing only. In production, the access token is fetched dynamically via the Screenly OAuth service.
+        type: oauth:airtable:access_token
+      schema_version: 1
+  base_id:
+    type: string
+    title: Base
+    optional: false
+    help_text:
+      properties:
+        help_text: The ID of the Airtable base to display data from (e.g. appXXXXXXXXXXXXXX).
+        type: oauth:airtable:base
+      schema_version: 1
+  display_errors:
+    type: string
+    default_value: 'false'
+    title: Display Errors
+    optional: true
+    help_text:
+      properties:
+        advanced: true
+        help_text: For debugging purposes to display errors on the screen.
+        type: boolean
+      schema_version: 1
+  override_locale:
+    type: string
+    default_value: ''
+    title: Override Locale
+    optional: true
+    help_text: |
+      Override the default locale with a supported language code (e.g., en, fr, de). Defaults to English if not specified.
+  override_timezone:
+    type: string
+    default_value: ''
+    title: Override Timezone
+    optional: true
+    help_text: |
+      Override the default timezone with a supported timezone identifier (e.g., Europe/London, America/New_York). Defaults to the system timezone if left blank.
+  refresh_interval:
+    type: string
+    default_value: '30'
+    title: Refresh Interval (seconds)
+    optional: true
+    help_text:
+      properties:
+        advanced: true
+        help_text: How often to refresh Airtable data. Defaults to 30 seconds.
+        type: number
+      schema_version: 1
+  stack_field:
+    type: string
+    default_value: ''
+    title: Stack Field (Kanban)
+    optional: true
+    # TODO: help_text type should use a structured oauth:airtable:* type (e.g. oauth:airtable:stack_field)
+    # to allow the UI to render a proper field picker, similar to base_id using oauth:airtable:base.
+    help_text: |
+      For kanban views, the name of the single-select field used to stack columns (e.g. Status). Must be a single-select field. Falls back to the first single-select field if not set.
+  view_id:
+    type: string
+    title: View ID
+    optional: false
+    help_text: The ID of the view to display (e.g. viwXXXXXXXXXXXXXX). Supports grid and kanban views.

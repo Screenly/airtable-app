@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airtable - Screenly Edge App</title>
+    <script src="screenly.js?version=1"></script>
+  </head>
+  <body>
+    <auto-scaler
+      reference-width="1920"
+      reference-height="1080"
+      orientation="auto"
+    >
+      <div id="app">
+        <app-header class="header" show-date></app-header>
+        <main class="content">
+          <div id="table-wrapper">
+            <h2 id="table-title" hidden></h2>
+            <div class="table-card" id="grid-container" style="display: none">
+              <table id="data-table">
+                <thead id="table-head"></thead>
+                <tbody id="table-body"></tbody>
+              </table>
+            </div>
+            <div id="kanban-container" style="display: none">
+              <div id="kanban-board"></div>
+            </div>
+          </div>
+
+          <div id="error-screen" style="display: none">
+            <div class="error-card">
+              <div class="error-card-left">
+                <h2>Something went wrong</h2>
+                <p>
+                  The Airtable data could not be loaded. Please check your
+                  configuration or contact your administrator.
+                </p>
+              </div>
+              <div class="error-card-right">
+                <div class="error-detail-label">Error details</div>
+                <p id="error-message" class="error-detail-message"></p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </auto-scaler>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
