@@ -2,18 +2,28 @@
 name: Update Edge App
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment to update
+        required: true
+        default: stage
+        type: choice
+        options:
+          - stage
+          - production
   push:
     branches:
       - development
       - main
 
-run-name: Updating Airtable App in ${{ github.ref == 'refs/heads/main' && 'production' || 'stage' }}
+run-name: Updating Airtable App in ${{ inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
 
 jobs:
   deploy-stage:
     name: Updating Airtable App in stage
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/development' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'stage')
     environment: stage
     steps:
       - uses: actions/checkout@v6
@@ -30,14 +40,14 @@ jobs:
               "${API_BASE_URL}/api/v4.1/users" \
               | jq -r '.[0] | "\(.first_name) \(.last_name) <\(.email)>"'
           )
-          echo "Current user: ${current_user}"
+          echo "Current User: ${current_user}"
           current_team=$(
             curl -fsSL -H "Authorization: Token ${SCREENLY_API_TOKEN}" \
               "${API_BASE_URL}/api/v4.1/teams" \
               | jq -r '.[] | select(.is_current == true)
                       | "\(.name) (\(.domain))"'
           )
-          echo "Current team: ${current_team}"
+          echo "Current Team: ${current_team}"
       - uses: Screenly/edge-apps-actions/update@v1
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
@@ -47,7 +57,7 @@ jobs:
   deploy-production:
     name: Updating Airtable App in production
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
     environment: production
     steps:
       - uses: actions/checkout@v6
@@ -64,14 +74,14 @@ jobs:
               "${API_BASE_URL}/api/v4.1/users" \
               | jq -r '.[0] | "\(.first_name) \(.last_name) <\(.email)>"'
           )
-          echo "Current user: ${current_user}"
+          echo "Current User: ${current_user}"
           current_team=$(
             curl -fsSL -H "Authorization: Token ${SCREENLY_API_TOKEN}" \
               "${API_BASE_URL}/api/v4.1/teams" \
               | jq -r '.[] | select(.is_current == true)
                       | "\(.name) (\(.domain))"'
           )
-          echo "Current team: ${current_team}"
+          echo "Current Team: ${current_team}"
       - uses: Screenly/edge-apps-actions/update@v1
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
