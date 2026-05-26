@@ -23,7 +23,7 @@ jobs:
   deploy-stage:
     name: Updating Airtable App in stage
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'stage')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/development') || (github.event_name == 'workflow_dispatch' && inputs.environment == 'stage')
     environment: stage
     steps:
       - uses: actions/checkout@v6
