@@ -17,7 +17,7 @@ on:
       - development
       - main
 
-run-name: Updating Airtable App in ${{ inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
+run-name: Updating Airtable App in ${{ (github.event_name == 'workflow_dispatch' && inputs.environment) || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
 
 jobs:
   deploy-stage:
