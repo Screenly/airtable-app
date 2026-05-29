@@ -76,4 +76,8 @@ settings:
     type: string
     title: View ID
     optional: false
-    help_text: The ID of the view to display (e.g. viwXXXXXXXXXXXXXX). Supports grid and kanban views.
+    help_text:
+      properties:
+        help_text: The ID of the view to display. Supports grid and kanban views.
+        type: oauth:airtable:view
+      schema_version: 1
