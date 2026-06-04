@@ -28,13 +28,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const reportError = createErrorReporter(displayErrors)
 
   if (!baseId) {
-    showError('Please configure the Base ID in settings.')
+    showError('Please select a Base in settings.')
     signalReady()
     return
   }
 
   if (!viewId) {
-    showError('Please configure the View ID in settings.')
+    showError('Please select a View in settings.')
     signalReady()
     return
   }
