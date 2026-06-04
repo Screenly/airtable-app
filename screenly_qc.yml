@@ -74,7 +74,7 @@ settings:
       For kanban views, the name of the single-select field used to stack columns (e.g. Status). Must be a single-select field. Falls back to the first single-select field if not set.
   view_id:
     type: string
-    title: View ID
+    title: View
     optional: false
     help_text:
       properties:
