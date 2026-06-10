@@ -5,8 +5,8 @@ description: Display Airtable data on your Screenly digital signage screens
 icon: https://playground.srly.io/edge-apps/icons/airtable.svg
 author: Screenly, Inc.
 categories:
+  - Dashboards
   - Productivity
-  - Dashboard
 ready_signal: true
 settings:
   access_token:
