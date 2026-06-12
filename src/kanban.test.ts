@@ -114,14 +114,4 @@ describe('renderKanban', () => {
     )
     warn.mockRestore()
   })
-
-  it('when stack_field names a non-existent field, should warn and do nothing', () => {
-    const warn = spyOn(console, 'warn').mockImplementation(() => {})
-    renderKanban(RECORDS, FIELDS, 'Missing')
-    expect(document.querySelectorAll('.kanban-column').length).toBe(0)
-    expect(warn).toHaveBeenCalledWith(
-      'renderKanban: cannot render board: field "Missing" not found or is not a singleSelect',
-    )
-    warn.mockRestore()
-  })
 })

@@ -47,7 +47,7 @@ export async function fetchViewData(
   }
 }
 
-export function renderView(viewData: ViewData, stackField: string): void {
+export function renderView(viewData: ViewData): void {
   const titleEl = document.getElementById('table-title')
   if (titleEl) {
     titleEl.textContent = viewData.tableName
@@ -55,7 +55,7 @@ export function renderView(viewData: ViewData, stackField: string): void {
   }
 
   if (viewData.viewType === 'kanban') {
-    renderKanban(viewData.records, viewData.fields, stackField)
+    renderKanban(viewData.records, viewData.fields)
     showView('kanban')
   } else {
     const { headers, rows } = recordsToRows(viewData.records, viewData.fields, {
