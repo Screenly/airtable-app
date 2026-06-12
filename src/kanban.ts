@@ -115,7 +115,6 @@ function groupByChoice(
 export function renderKanban(
   records: AirtableRecord[],
   fields: AirtableField[],
-  stackFieldName = '',
 ): void {
   const board = document.getElementById('kanban-board')
   if (!board) {
@@ -123,14 +122,11 @@ export function renderKanban(
   }
   board.innerHTML = ''
 
-  const stackField = stackFieldName
-    ? fields.find((f) => f.name === stackFieldName && f.type === 'singleSelect')
-    : fields.find((f) => f.type === 'singleSelect')
+  const stackField = fields.find((f) => f.type === 'singleSelect')
   if (!stackField) {
-    const reason = stackFieldName
-      ? `field "${stackFieldName}" not found or is not a singleSelect`
-      : 'no singleSelect field found in schema'
-    console.warn(`renderKanban: cannot render board: ${reason}`)
+    console.warn(
+      'renderKanban: cannot render board: no singleSelect field found in schema',
+    )
     return
   }
 
