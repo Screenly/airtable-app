@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupTheme()
 
   const baseId = getSettingWithDefault<string>('base_id', '')
-  const stackField = getSettingWithDefault<string>('stack_field', '')
   const viewId = getSettingWithDefault<string>('view_id', '')
   const refreshInterval = getSettingWithDefault<number>('refresh_interval', 30)
   const displayErrors =
@@ -28,13 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const reportError = createErrorReporter(displayErrors)
 
   if (!baseId) {
-    showError('Please configure the Base ID in settings.')
+    showError('Please select a Base in settings.')
     signalReady()
     return
   }
 
   if (!viewId) {
-    showError('Please configure the View ID in settings.')
+    showError('Please select a View in settings.')
     signalReady()
     return
   }
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       reportError,
       async (token) => {
         const viewData = await fetchViewData(token, baseId, viewId)
-        renderView(viewData, stackField)
+        renderView(viewData)
       },
     )
 

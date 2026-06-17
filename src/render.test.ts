@@ -51,24 +51,24 @@ describe('renderView', () => {
   })
 
   it('should set the table title', () => {
-    renderView(GRID_VIEW_DATA, '')
+    renderView(GRID_VIEW_DATA)
     expect(document.getElementById('table-title')?.textContent).toBe(
       'Team Directory',
     )
   })
 
   it('should unhide the table title', () => {
-    renderView(GRID_VIEW_DATA, '')
+    renderView(GRID_VIEW_DATA)
     expect(document.getElementById('table-title')?.hidden).toBe(false)
   })
 
   it('when viewType is grid, should render table rows', () => {
-    renderView(GRID_VIEW_DATA, '')
+    renderView(GRID_VIEW_DATA)
     expect(document.querySelectorAll('#table-body tr').length).toBe(1)
   })
 
   it('when viewType is kanban, should render kanban columns', () => {
-    renderView(KANBAN_VIEW_DATA, '')
+    renderView(KANBAN_VIEW_DATA)
     expect(document.querySelectorAll('.kanban-column').length).toBeGreaterThan(
       0,
     )
