@@ -73,10 +73,11 @@ export function createErrorReporter(displayErrors: boolean): ErrorReporter {
 
 export function createPillsContainer(pills: Pill[]): HTMLDivElement {
   const container = document.createElement('div')
-  container.className = 'cell-pills'
+  container.className = 'cell-pills flex flex-nowrap gap-1 items-center'
   pills.forEach((pill) => {
     const span = document.createElement('span')
-    span.className = 'pill'
+    span.className =
+      'pill inline-flex items-center px-[0.6rem] py-[0.2rem] rounded-2xl text-xs font-medium whitespace-nowrap'
     span.textContent = pill.label
     const colors = (pill.color && AIRTABLE_COLORS[pill.color]) || PILL_FALLBACK
     span.style.backgroundColor = colors.bg
@@ -101,8 +102,12 @@ export function renderTable(headers: string[], rows: CellValue[][]): void {
   }
 
   const headerRow = document.createElement('tr')
+  headerRow.className =
+    'bg-[linear-gradient(rgba(255,255,255,0.15),rgba(255,255,255,0.15))] bg-[length:calc(100%-4rem)_1px] bg-center bg-no-repeat'
   headers.forEach((header) => {
     const th = document.createElement('th')
+    th.className =
+      'text-left py-5 px-8 text-xs font-semibold tracking-[0.08em] uppercase text-[#9d9d9f] whitespace-nowrap portrait:py-4 portrait:px-5 portrait:text-[0.7rem]'
     th.textContent = header
     headerRow.appendChild(th)
   })
@@ -110,8 +115,12 @@ export function renderTable(headers: string[], rows: CellValue[][]): void {
 
   rows.forEach((row) => {
     const tr = document.createElement('tr')
+    tr.className =
+      '[&:not(:last-child)]:bg-[linear-gradient(rgba(255,255,255,0.15),rgba(255,255,255,0.15))] [&:not(:last-child)]:bg-[length:calc(100%-4rem)_1px] [&:not(:last-child)]:bg-center [&:not(:last-child)]:bg-no-repeat'
     row.forEach((cell) => {
       const td = document.createElement('td')
+      td.className =
+        'py-[1.125rem] px-8 text-lg font-normal text-[#dadadb] whitespace-nowrap align-middle portrait:py-[0.875rem] portrait:px-5 portrait:text-base'
       if (typeof cell === 'string') {
         td.textContent = cell
       } else {
