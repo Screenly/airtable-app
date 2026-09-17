@@ -1,6 +1,4 @@
 import './css/style.css'
-import './css/grid.css'
-import './css/kanban.css'
 import '@screenly/edge-apps/components'
 import {
   getCredentials,
