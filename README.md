@@ -1,4 +1,8 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/airtable-app)](https://github.com/Screenly/airtable-app/releases/latest)
+
 # Airtable App
+
+![Airtable App Preview](/screenshots/grid-1920x1080.webp)
 
 Displays data from an Airtable base on your Screenly digital signage screens.
 
