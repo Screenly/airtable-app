@@ -1,4 +1,8 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/airtable-app)](https://github.com/Screenly/airtable-app/releases/latest)
+
 # Airtable App
+
+![Airtable App Preview](/screenshots/grid-1920x1080.webp)
 
 Displays data from an Airtable base on your Screenly digital signage screens.
 
@@ -77,6 +81,22 @@ bun run screenshots
 screenly edge-app create --name airtable-app --in-place
 bun run deploy
 screenly edge-app instance create
+```
+
+### Releasing
+
+Pushes to `main` start a stage deploy, which waits for approval. To release to production, tag a commit on `main` and push the tag (the workflow refuses tags not on `main`); the production deploy also waits for approval:
+
+```bash
+git checkout main && git pull
+git tag v26.10.0
+git push origin v26.10.0
+```
+
+Then publish a GitHub Release whose notes list the pull requests merged since the previous release. Add `--draft` to review the notes before publishing:
+
+```bash
+gh release create v26.10.0 --verify-tag --generate-notes --title v26.10.0
 ```
 
 ## Configuration
